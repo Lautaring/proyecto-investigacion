@@ -1,6 +1,6 @@
 import sys
 import random
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QFileDialog, QDialog, QLabel, QLineEdit, QDialogButtonBox, QFormLayout, QColorDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QFileDialog, QDialog, QLineEdit, QDialogButtonBox, QFormLayout, QColorDialog
 from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor
 from PyQt5.QtCore import Qt, QPoint, QTimer
 
@@ -16,8 +16,9 @@ class ImageLoaderApp(QMainWindow):
         self.layout = QVBoxLayout()
         self.central_widget.setLayout(self.layout)
 
-        self.image_label = QLabel()
-        self.layout.addWidget(self.image_label)
+        # Creamos una nueva etiqueta para mostrar la imagen y los puntos
+        self.image_label_with_points = QLabel()
+        self.layout.addWidget(self.image_label_with_points)
 
         self.load_button = QPushButton("Cargar Imagen")
         self.load_button.clicked.connect(self.load_image)
@@ -36,7 +37,12 @@ class ImageLoaderApp(QMainWindow):
         self.last_point = None
         self.pen_color = QColor("black")
         
-        self.points = [QPoint(100, 100), QPoint(200, 200), QPoint(300, 300)]
+        self.points = []
+
+        # Definir puntos iniciales
+        self.points = [QPoint(50, 50), QPoint(100, 100), QPoint(150, 150)]
+
+        # Iniciar temporizador para mover los puntos
         self.timer = QTimer()
         self.timer.timeout.connect(self.move_points)
         self.timer.start(1000)  # Actualiza la posición cada segundo
@@ -49,18 +55,32 @@ class ImageLoaderApp(QMainWindow):
                 self.image_path = file_path
                 pixmap = QPixmap(file_path)
                 pixmap = pixmap.scaled(width, height, Qt.KeepAspectRatio)
-                self.image_label.setPixmap(pixmap)
-                self.image_label.mousePressEvent = self.mouse_press_event
-                self.image_label.mouseMoveEvent = self.mouse_move_event
-                self.image_label.mouseReleaseEvent = self.mouse_release_event
-    
-                
+
+                # Creamos una imagen que contenga la imagen cargada y los puntos dibujados
+                image_with_points = pixmap.copy()
+                painter = QPainter(image_with_points)
+                self.draw_points(painter)  # Dibujamos los puntos
+                painter.end()
+
+                self.image_label_with_points.setPixmap(image_with_points)
+                self.image_label_with_points.mousePressEvent = self.mouse_press_event
+                self.image_label_with_points.mouseMoveEvent = self.mouse_move_event
+                self.image_label_with_points.mouseReleaseEvent = self.mouse_release_event
+
+    def draw_points(self, painter):
+        pen = QPen()
+        pen.setWidth(5)
+        painter.setPen(pen)
+        painter.setBrush(QColor("blue"))
+        for point in self.points:
+            painter.drawEllipse(point, 5, 5)
+
     def move_points(self):
         for i in range(len(self.points)):
-            new_x = self.points[i].x() + random.randint(-10, 10)  # Mueve el punto aleatoriamente en el eje X
-            new_y = self.points[i].y() + random.randint(-10, 10)  # Mueve el punto aleatoriamente en el eje Y
+            new_x = self.points[i].x() + random.randint(-5, 5)  # Mueve el punto aleatoriamente en el eje X
+            new_y = self.points[i].y() + random.randint(-5, 5)  # Mueve el punto aleatoriamente en el eje Y
             self.points[i] = QPoint(new_x, new_y)
-        self.image_label.update()    
+        self.image_label_with_points.update()  # Actualiza la imagen para reflejar los nuevos puntos
 
     def mouse_press_event(self, event):
         if event.buttons() == Qt.LeftButton and self.image_path:
@@ -70,7 +90,7 @@ class ImageLoaderApp(QMainWindow):
 
     def mouse_move_event(self, event):
         if self.drawing and self.image_path:
-            painter = QPainter(self.image_label.pixmap())
+            painter = QPainter(self.image_label_with_points.pixmap())
             pen = QPen()
             pen.setWidth(3)
             pen.setWidth(3)
@@ -78,7 +98,7 @@ class ImageLoaderApp(QMainWindow):
             painter.setPen(pen)
             painter.drawLine(self.last_point, event.pos())
             self.last_point = event.pos()
-            self.image_label.update()
+            self.image_label_with_points.update()
 
     def mouse_release_event(self, event):
         if event.button() == Qt.LeftButton and self.image_path:
@@ -88,12 +108,11 @@ class ImageLoaderApp(QMainWindow):
         if self.image_path:
             file_path, _ = QFileDialog.getSaveFileName(self, "Guardar Imagen", "", "Archivos de Imagen (*.png *.jpg *.jpeg)")
             if file_path:
-                painter = QPainter(self.image_label.pixmap())
-                image = self.image_label.pixmap().toImage()
+                painter = QPainter(self.image_label_with_points.pixmap())
+                image = self.image_label_with_points.pixmap().toImage()
                 image.save(file_path)
                 for point in self.points:
                     painter.drawPoint(point)               
-                
     
     def choose_color(self):
         color = QColorDialog.getColor()

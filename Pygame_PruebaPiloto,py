@@ -1,0 +1,60 @@
+import pygame
+import os
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la pantalla
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption('Seleccionar Imagen')
+
+# Colores
+WHITE = (255, 255, 255)
+
+# Obtener la lista de archivos en un directorio
+directory = '.'  # Directorio actual
+files = os.listdir(directory)
+
+# Función para mostrar la lista de archivos
+def show_files():
+    font = pygame.font.Font(None, 36)
+    y = 50
+    for file_name in files:
+        text = font.render(file_name, True, (0, 0, 0))
+        screen.blit(text, (50, y))
+        y += 40
+
+# Bucle principal
+clock = pygame.time.Clock()
+running = True
+selected_file = None
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Verificar si se hizo clic en un archivo
+            x, y = event.pos
+            if 50 <= x <= 750:
+                index = (y - 50) // 40
+                if 0 <= index < len(files):
+                    selected_file = files[index]
+                    print("Archivo seleccionado:", selected_file)
+
+    screen.fill(WHITE)
+    show_files()
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+
+
+
+
+
+
+
+
+

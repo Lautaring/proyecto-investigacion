@@ -27,13 +27,15 @@ class AdminGUI:
         self.image_label = None
         self.factor_name_entry = None
         self.diversity_entry = None
-        
+        self.last_img_path = None
+
         # Inicializar el diccionario para almacenar los factores
         self.factors_dict = {}
 
     def load_image(self):
-        img_path = filedialog.askopenfilename()  # esto me deja eleguir archivos
-        if img_path:  # si se seleciono algo entonces
+        img_path = filedialog.askopenfilename()  # Esto me deja elegir archivos
+        if img_path:  # Si se seleccionó algo entonces
+            self.last_img_path = img_path  # Almacena la ruta de la imagen cargada
             self.img = cv2.imread(img_path)
             if self.img is not None:
                 self.show_image()
@@ -112,13 +114,22 @@ class AdminGUI:
         # Crear un objeto Factor con las propiedades ingresadas
         factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, None)
 
-        # obtengo la ruta de la imagen cargada
-        img_path = filedialog.askopenfilename()  # me abre un dialogo para seleccionar la imagenn
+        if self.last_img_path:  # Verificar si se cargó una imagen previamente
+            # Obtener la ruta de la imagen cargada
+            img_path = self.last_img_path
 
-        if img_path:  # si el usuario selecciona un archivo
-            # me guardo el factor junto con la imagen en el diccionario
+            # Me guardo el factor junto con la imagen en el diccionario
             self.factors_dict[img_path] = factor
+            self.clear_canvas()
             self.clear_form()
+        else:
+            # Si no se ha cargado una imagen previamente, solicitar al usuario que seleccione una
+            img_path = filedialog.askopenfilename()
+            if img_path:  # Si el usuario selecciona un archivo
+                # Me guardo el factor junto con la imagen en el diccionario
+                self.factors_dict[img_path] = factor
+                self.clear_canvas()
+                self.clear_form()
         
     def clear_form(self):
         # Borra los valores de todos los campos del formulario
@@ -129,3 +140,6 @@ class AdminGUI:
         self.calidad_entry.delete(0, tk.END)
         self.coef_crecimiento_entry.delete(0, tk.END)
         self.coef_mantenimiento_entry.delete(0, tk.END)
+
+    def clear_canvas(self):
+        self.canvas.delete("all")

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import tkinter as tk
+from tkinter import filedialog
 from PIL import Image, ImageTk
 from logic.Rol import Rol
 from logic.Factor import Factor
@@ -29,29 +30,44 @@ class AdminGUI:
         
         # Inicializar el diccionario para almacenar los factores
         self.factors_dict = {}
-        # Aquí agrega más campos de formulario según tus necesidades
 
     def load_image(self):
-        img_path = 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png'  # Cambia la ruta de la imagen según tu necesidad
-        self.img = cv2.imread(img_path)
-        if self.img is not None:
-            self.show_image()
-            self.create_form()
-        else:
-            print(f"No se pudo cargar la imagen {img_path}")
+        img_path = filedialog.askopenfilename()  # esto me deja eleguir archivos
+        if img_path:  # si se seleciono algo entonces
+            self.img = cv2.imread(img_path)
+            if self.img is not None:
+                self.show_image()
+                self.create_form()
+            else:
+                print(f"No se pudo cargar la imagen {img_path}")
 
     def show_image(self):
         img_rgb = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(img_rgb)
-        img_width, img_height = img_pil.size
 
-        # Ajusta el tamaño del lienzo al tamaño de la imagen
-        self.canvas.config(width=img_width, height=img_height)
+        # aca obtengo las dimensiones de la window
+        window_width = self.master.winfo_width()
+        window_height = self.master.winfo_height()
 
-        img_tk = ImageTk.PhotoImage(image=img_pil)
+        # estas son las dimensiones originales de la imagen
+        original_width, original_height = img_pil.size
+
+        # factor de escala
+        width_ratio = window_width / original_width
+        height_ratio = window_height / original_height
+        scale_factor = min(width_ratio, height_ratio)
+
+        # redimensiono la imagen utilizando el factor de escala
+        new_width = int(original_width * scale_factor)
+        new_height = int(original_height * scale_factor)
+        img_pil_resized = img_pil.resize((new_width, new_height), Image.LANCZOS)
+
+        # ajustamos el lienzo con respecto a la venta (verlo bien)
+        self.canvas.config(width=window_width, height=window_height)
+
+        img_tk = ImageTk.PhotoImage(image=img_pil_resized)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
         self.canvas.image = img_tk
-
         
     def create_form(self):
         tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=0, column=0)
@@ -82,16 +98,7 @@ class AdminGUI:
         self.coef_mantenimiento_entry = tk.Entry(self.form_frame)
         self.coef_mantenimiento_entry.grid(row=6, column=1)
 
-        tk.Label(self.form_frame, text="Nombre del Rol:").grid(row=7, column=0)
-        self.rol_nombre_entry = tk.Entry(self.form_frame)
-        self.rol_nombre_entry.grid(row=7, column=1)
-
-        tk.Label(self.form_frame, text="Peso de Influencia del Rol:").grid(row=8, column=0)
-        self.rol_peso_influencia_entry = tk.Entry(self.form_frame)
-        self.rol_peso_influencia_entry.grid(row=8, column=1)
-
-        save_button = tk.Button(self.form_frame, text="Guardar Factor", command=self.save_factor)
-        save_button.grid(row=9, column=0, columnspan=2)
+        tk.Button(self.form_frame, text="Guardar Factor", command=self.save_factor).grid(row=7, columnspan=2)
 
     def save_factor(self):
         nombre = self.factor_name_entry.get()
@@ -101,27 +108,18 @@ class AdminGUI:
         calidad = float(self.calidad_entry.get())
         coef_crecimiento = float(self.coef_crecimiento_entry.get())
         coef_mantenimiento = float(self.coef_mantenimiento_entry.get())
-        rol_nombre = self.rol_nombre_entry.get()
-        rol_peso_influencia = float(self.rol_peso_influencia_entry.get())
-
-        # Crear un objeto Rol
-        rol = Rol(rol_nombre, rol_peso_influencia)
 
         # Crear un objeto Factor con las propiedades ingresadas
-        factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, rol)
+        factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, None)
 
-        # Obtener la ruta de la imagen cargada
-        img_path = 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png'  # Cambiar por la ruta correcta según tu implementación
+        # obtengo la ruta de la imagen cargada
+        img_path = filedialog.askopenfilename()  # me abre un dialogo para seleccionar la imagenn
 
-        # Almacenar el factor junto con la imagen en el diccionario
-        self.factors_dict[img_path] = factor
-
-        # Limpia el formulario después de guardar el factor
-        self.clear_form()
+        if img_path:  # si el usuario selecciona un archivo
+            # me guardo el factor junto con la imagen en el diccionario
+            self.factors_dict[img_path] = factor
+            self.clear_form()
         
-        # Cargar la siguiente imagen y mostrarla
-        self.load_next_image()
-    
     def clear_form(self):
         # Borra los valores de todos los campos del formulario
         self.factor_name_entry.delete(0, tk.END)
@@ -131,25 +129,3 @@ class AdminGUI:
         self.calidad_entry.delete(0, tk.END)
         self.coef_crecimiento_entry.delete(0, tk.END)
         self.coef_mantenimiento_entry.delete(0, tk.END)
-        self.rol_nombre_entry.delete(0, tk.END)
-        self.rol_peso_influencia_entry.delete(0, tk.END)
-
-    def load_next_image(self):
-        # Lista de rutas de imágenes
-        image_paths = ['C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png', 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_2.png']  # Agrega todas las rutas necesarias
-
-        # Obtener la ruta de la imagen actual
-        current_index = len(self.factors_dict)  # Índice de la imagen actual
-        if current_index < len(image_paths):
-            next_img_path = image_paths[current_index]
-        else:
-            print("No hay más imágenes para cargar.")
-            return
-
-        # Cargar la siguiente imagen
-        self.img = cv2.imread(next_img_path)
-        if self.img is not None:
-            self.show_image()
-            self.create_form()
-        else:
-            print(f"No se pudo cargar la imagen {next_img_path}")

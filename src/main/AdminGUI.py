@@ -2,81 +2,8 @@ import cv2
 import numpy as np
 import tkinter as tk
 from PIL import Image, ImageTk
-#from your_classes_file import Factor, Rol  # Importa las clases Factor y Rol desde tu archivo
-
-#_____________________________________________________________________________________________________________________________________________
-class Rol:
-    def __init__(self, nombre, peso_influencia):
-        self.nombre = nombre
-        self.peso_influencia = peso_influencia
-    
-    def Get_nombre(self):
-        return self.nombre
-    
-    def Get_peso_influencia(self):
-        return self.peso_influencia
-
-
-#_____________________________________________________________________________________________________________________________________________
-
-class Permeabilidad:
-    def __init__(self, Tipo, valor):
-        self.tipo = Tipo
-        self.valor = valor
-
-    def Get_tipo(self):
-        return self.tipo
-    
-    def Get_valor(self):
-        return self.valor
-    
-#_____________________________________________________________________________________________________________________________________________
-
-class Vinculo:
-    def __init__(self, Tipo, valor):
-        self.tipo = Tipo
-        self.valor = valor
-
-    def Get_tipo(self):
-        return self.tipo
-    
-    def Get_valor(self):
-        return self.valor
-
-
-#_____________________________________________________________________________________________________________________________________________
-
-class Factor:
-    def __init__(self, nombre, diversidad, masa_critica, orden, calidad, coeficiente_crecimiento, coeficiente_mantenimiento, rol_1 : Rol):
-        self.nombre = nombre
-        self.diversidad = diversidad
-        self.masa_critica = masa_critica
-        self.orden = orden
-        self.calidad = calidad
-        self.coeficiente_crecimiento = coeficiente_crecimiento
-        self.coeficiente_mantenimiento = coeficiente_mantenimiento
-        self.rol = rol_1
-
-
-#_____________________________________________________________________________________________________________________________________________
-
-class Relacion:
-    def __init__(self, factor_1 : Factor, permeabilidad_1 : Permeabilidad, vinculo_1 : Vinculo):
-        self.factor = factor_1
-        self.permeabilidad = permeabilidad_1
-        self.vinculo = vinculo_1
-        
-    def Get_factor(self):
-        return self.factor
-    
-    def Get_permeabilidad(self):
-        return self.permeabilidad
-
-    def Get_vinculo(self):
-        return self.vinculo
-
-
-#_____________________________________________________________________________________________________________________________________________2
+from logic.Rol import Rol
+from logic.Factor import Factor
 
 class AdminGUI:
     def __init__(self, master):
@@ -105,7 +32,7 @@ class AdminGUI:
         # Aquí agrega más campos de formulario según tus necesidades
 
     def load_image(self):
-        img_path = 'figure_1.png'  # Cambia la ruta de la imagen según tu necesidad
+        img_path = 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png'  # Cambia la ruta de la imagen según tu necesidad
         self.img = cv2.imread(img_path)
         if self.img is not None:
             self.show_image()
@@ -184,7 +111,7 @@ class AdminGUI:
         factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, rol)
 
         # Obtener la ruta de la imagen cargada
-        img_path = 'figure_1.png'  # Cambiar por la ruta correcta según tu implementación
+        img_path = 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png'  # Cambiar por la ruta correcta según tu implementación
 
         # Almacenar el factor junto con la imagen en el diccionario
         self.factors_dict[img_path] = factor
@@ -209,7 +136,7 @@ class AdminGUI:
 
     def load_next_image(self):
         # Lista de rutas de imágenes
-        image_paths = ['figure_1.png', 'figure_2.png']  # Agrega todas las rutas necesarias
+        image_paths = ['C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_1.png', 'C:/Users/Usuario/Documents/Github/proyecto-investigacion/src/main/resources/figure_2.png']  # Agrega todas las rutas necesarias
 
         # Obtener la ruta de la imagen actual
         current_index = len(self.factors_dict)  # Índice de la imagen actual
@@ -226,12 +153,3 @@ class AdminGUI:
             self.create_form()
         else:
             print(f"No se pudo cargar la imagen {next_img_path}")
-
-
-def main():
-    root = tk.Tk()
-    app = AdminGUI(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()

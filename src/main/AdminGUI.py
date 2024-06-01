@@ -34,8 +34,8 @@ class AdminGUI:
         # Inicializar el diccionario para almacenar los factores
         self.factors_dict = {}
 
-#Obtener las rutas relativas de la imagen y guardarlas en una lista de paths para luego utilizarlas
-    """ # Obtener la lista de rutas de las imágenes
+    #Obtener las rutas relativas de la imagen y guardarlas en una lista de paths para luego utilizarlas
+    # Obtener la lista de rutas de las imágenes
         self.image_paths = self.get_image_paths()
 
     def get_image_paths(self):
@@ -47,8 +47,8 @@ class AdminGUI:
         # Ordenar los archivos por nombre para asegurar el orden correcto
         image_files.sort()
 
-        return image_files """
-    def load_image(self):
+        return image_files
+    """    def load_image(self):
         img_path = filedialog.askopenfilename()  # Esto me deja elegir archivos
         if img_path:  # Si se seleccionó algo entonces
             self.last_img_path = img_path  # Almacena la ruta de la imagen cargada
@@ -57,22 +57,23 @@ class AdminGUI:
                 self.show_image()
                 self.create_form()
             else:
-                print(f"No se pudo cargar la imagen {img_path}")
+                print(f"No se pudo cargar la imagen {img_path}")"""
 
     #Carga de imagenes automática
-    """def load_image(self):
-        print("image_paths: ", self.image_paths)
-        if self.image_paths:
-            img_path = self.image_paths[0]  # Cargar la primera imagen de la lista
+    def load_image(self):
+        try: 
+            print("image_paths: ", self.image_paths)
+            img_path = self.image_paths[0]
+            #img_path = "D:\\MEGA\\MEGAsyncUploads\\IngenieriaEnInformatica\\CursadoDeLaCarrera\\ProyectoDeInvestigacion\\src\\main\\resources\\figure_1.png"
             self.last_img_path = img_path
             self.img = cv2.imread(img_path)
-            if self.img is not None:
-                self.show_image()
-                self.create_form()
-            else:
-                print(f"No se pudo cargar la imagen {img_path}")
-        else:
-            print("No se encontraron imágenes.")"""
+            self.show_image()
+            self.create_form()
+        except NameError:
+            print("Error: Variable no definida")
+        except:
+            print("Error al cargar la imagen: No existe el archivo")
+
 
     def show_image(self):
         img_rgb = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
@@ -158,7 +159,7 @@ class AdminGUI:
             self.load_next_image()
 
     #Sirve para la carga de imagenes automática
-    """def load_next_image(self):
+    def load_next_image(self):
         current_index = len(self.factors_dict)  # Índice de la imagen actual
         if current_index < len(self.image_paths):
             next_img_path = self.image_paths[current_index]
@@ -170,7 +171,7 @@ class AdminGUI:
             else:
                 print(f"No se pudo cargar la imagen {next_img_path}")
         else:
-            print("No hay más imágenes para cargar.") """
+            print("No hay más imágenes para cargar.") 
 
     def clear_form(self):
         # Borra los valores de todos los campos del formulario

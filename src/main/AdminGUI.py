@@ -172,7 +172,8 @@ class AdminGUI:
                 print(f"No se pudo cargar la imagen {next_img_path}")
         else:
             print("No hay más imágenes para cargar.") 
-
+            self.show_blank_board_menu()
+            
     def clear_form(self):
         # Borra los valores de todos los campos del formulario
         self.factor_name_entry.delete(0, tk.END)
@@ -185,3 +186,61 @@ class AdminGUI:
 
     def clear_canvas(self):
         self.canvas.delete("all")
+
+    def show_blank_board_menu(self):
+        # Ocultar la ventana principal
+        self.master.withdraw()
+
+        # Crear una nueva ventana para mostrar el tablero en blanco
+        blank_board_window = tk.Toplevel()
+        blank_board_window.title("Tablero en Blanco")
+        blank_board_window.geometry("900x900")
+
+        # Crear un lienzo en blanco de 900px por 900px
+        canvas_blank_board = tk.Canvas(blank_board_window, width=900, height=900, bg="white")
+        canvas_blank_board.pack()
+
+        # Almacenar referencias a las imágenes cargadas
+        self.loaded_images = []
+
+        # Almacenar referencias a los IDs de las imágenes en el canvas
+        self.image_ids = []
+
+        # Cargar las imágenes y hacerlas arrastrables
+        self.load_and_make_draggable(canvas_blank_board, self.image_paths[0], 100, 100)
+        self.load_and_make_draggable(canvas_blank_board, self.image_paths[1], 300, 300)
+
+        # Botón para superponer las imágenes
+        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(canvas_blank_board))
+        btn_superponer.pack()
+
+        # Agregar un botón para cerrar la ventana y la principal
+        btn_close = tk.Button(blank_board_window, text="Cerrar", command=lambda: self.close_blank_board(blank_board_window))
+        btn_close.pack()
+
+        # Asociar el evento de cierre de la ventana del tablero en blanco
+        blank_board_window.protocol("WM_DELETE_WINDOW", lambda: self.close_blank_board(blank_board_window))
+
+    def load_and_make_draggable(self, canvas, img_path, x, y):
+        img = cv2.imread(img_path)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_pil = Image.fromarray(img_rgb)
+        img_tk = ImageTk.PhotoImage(image=img_pil)
+
+        image_id = canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
+        self.loaded_images.append(img_tk)  # Mantener una referencia a la imagen
+        self.image_ids.append(image_id)  # Mantener una referencia al ID de la imagen en el canvas
+
+        def on_drag(event):
+            canvas.coords(image_id, event.x, event.y)
+
+        canvas.tag_bind(image_id, "<B1-Motion>", on_drag)
+
+    def superponer_imagenes(self):
+        self
+        # Implementar acá
+
+
+    def close_blank_board(self, blank_board_window):
+        blank_board_window.destroy()
+        self.master.destroy()

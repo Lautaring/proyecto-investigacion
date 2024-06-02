@@ -5,6 +5,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from logic.Rol import Rol
 from logic.Factor import Factor
+from logic.Tablero import Tablero
 import glob
 import os
 
@@ -21,6 +22,8 @@ class AdminGUI:
 
         self.canvas = tk.Canvas(self.image_frame, width=400, height=400)
         self.canvas.pack()
+
+        self.tablero = Tablero(self.canvas, 600, 600)
 
         self.load_image_button = tk.Button(self.image_frame, text="Cargar Imagen", command=self.load_image)
         self.load_image_button.pack()
@@ -197,7 +200,7 @@ class AdminGUI:
         blank_board_window.geometry("900x900")
 
         # Crear un lienzo en blanco de 900px por 900px
-        canvas_blank_board = tk.Canvas(blank_board_window, width=900, height=900, bg="white")
+        canvas_blank_board = tk.Canvas(blank_board_window, width=600, height=600, bg="white")
         canvas_blank_board.pack()
 
         # Almacenar referencias a las imágenes cargadas
@@ -206,12 +209,12 @@ class AdminGUI:
         # Almacenar referencias a los IDs de las imágenes en el canvas
         self.image_ids = []
 
-        # Cargar las imágenes y hacerlas arrastrables
-        self.load_and_make_draggable(canvas_blank_board, self.image_paths[0], 100, 100)
-        self.load_and_make_draggable(canvas_blank_board, self.image_paths[1], 300, 300)
+        # Cargar las imágenes y hacerlas arrastrables en el lienzo del tablero
+        self.load_and_make_draggable(self.tablero.canvas, self.image_paths[0], 100, 100)
+        self.load_and_make_draggable(self.tablero.canvas, self.image_paths[1], 300, 300)
 
         # Botón para superponer las imágenes
-        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(canvas_blank_board))
+        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(self.tablero.canvas))
         btn_superponer.pack()
 
         # Agregar un botón para cerrar la ventana y la principal

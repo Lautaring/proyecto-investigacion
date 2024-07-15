@@ -1,0 +1,8 @@
+Ruta: d:\MEGA\MEGAsyncUploads\Ingenieria en Informatica\Cursado de la carrera\Proyecto De Investigacion\src\main\resources\figure_2.png
+Nombre del Factor: 1
+Diversidad: 1.0
+Masa Crítica: 1.0
+Orden: 1.0
+Calidad: 1.0
+Coeficiente de Crecimiento: 1.0
+Coeficiente de Mantenimiento: 1.0

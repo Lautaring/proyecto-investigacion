@@ -18,6 +18,7 @@ class PaintApp:
         self.select_start = None
         self.canvas_image_id = None
         self.polyline_points = []
+        self.polyline_colors = []
 
         self.canvas = tk.Canvas(self.root, bg='white')
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -83,6 +84,7 @@ class PaintApp:
         self.draw_tool = tool
         if tool != 'polyline':
             self.polyline_points = []  # Reset polyline points when changing tool
+            self.polyline_colors = []  # Reset polyline colors when changing tool
 
     def erase_all(self):
         self.canvas.delete("all")
@@ -107,8 +109,9 @@ class PaintApp:
         self.start_y = event.y
         if self.draw_tool == 'polyline':
             self.polyline_points.append((event.x, event.y))
+            self.polyline_colors.append(self.color)  # Store the color for this point
             if len(self.polyline_points) > 1:
-                self.canvas.create_line(self.polyline_points[-2], self.polyline_points[-1], fill=self.color, width=self.brush_size, tags="current_polyline")
+                self.canvas.create_line(self.polyline_points[-2], self.polyline_points[-1], fill=self.polyline_colors[-2], width=self.brush_size, tags="current_polyline")
         elif self.draw_tool == 'select':
             self.select_start = (event.x, event.y)
 
@@ -156,9 +159,12 @@ class PaintApp:
 
     def close_polyline(self, event):
         if self.draw_tool == 'polyline' and len(self.polyline_points) > 1:
-            self.canvas.create_line(self.polyline_points[-1], self.polyline_points[0], fill=self.color, width=self.brush_size, tags="shape")
-            self.shapes.append(self.canvas.create_line(self.polyline_points + [self.polyline_points[0]], fill=self.color, width=self.brush_size, tags="shape"))
+            self.canvas.create_line(self.polyline_points[-1], self.polyline_points[0], fill=self.polyline_colors[-1], width=self.brush_size, tags="shape")
+            for i in range(len(self.polyline_points) - 1):
+                self.shapes.append(self.canvas.create_line(self.polyline_points[i], self.polyline_points[i + 1], fill=self.polyline_colors[i], width=self.brush_size, tags="shape"))
+            self.shapes.append(self.canvas.create_line(self.polyline_points[-1], self.polyline_points[0], fill=self.polyline_colors[-1], width=self.brush_size, tags="shape"))
             self.polyline_points = []
+            self.polyline_colors = []
 
     def on_right_click(self, event):
         items = self.canvas.find_overlapping(event.x, event.y, event.x, event.y)
@@ -172,9 +178,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = PaintApp(root)
     root.mainloop()
-
-
-
-
-
-

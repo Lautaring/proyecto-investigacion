@@ -166,7 +166,7 @@ class AdminGUI:
     def guardar_en_archivo(self, img_path, factor):
         # Crear la subcarpeta "base de datos" si no existe
         base_dir = os.path.dirname(os.path.abspath(__file__))  # Obtiene el directorio del script actual
-        database_dir = os.path.join(base_dir, 'base de datos')
+        database_dir = os.path.join(base_dir, 'Base de datos')
         if not os.path.exists(database_dir):
             os.makedirs(database_dir)
 

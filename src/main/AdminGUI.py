@@ -37,9 +37,11 @@ class AdminGUI:
         # Inicializar el diccionario para almacenar los factores
         self.factors_dict = {}
 
-    #Obtener las rutas relativas de la imagen y guardarlas en una lista de paths para luego utilizarlas
-    # Obtener la lista de rutas de las imágenes
+        #Obtener las rutas relativas de la imagen y guardarlas en una lista de paths para luego utilizarlas
+        # Obtener la lista de rutas de las imágenes
         self.image_paths = self.get_image_paths()
+
+        self.image_refs = []
 
     def get_image_paths(self):
         # Buscar todos los archivos que coincidan con el patrón 'figureX.png' en la subcarpeta resources
@@ -225,13 +227,12 @@ class AdminGUI:
         blank_board_window.protocol("WM_DELETE_WINDOW", lambda: self.close_blank_board(blank_board_window))
 
     def load_and_make_draggable(self, canvas, img_path, x, y):
-        img = cv2.imread(img_path)
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img_pil = Image.fromarray(img_rgb)
-        img_tk = ImageTk.PhotoImage(image=img_pil)
+        img = Image.open(img_path).convert("RGBA")  # Convertir a formato con canal alfa
+        img_tk = ImageTk.PhotoImage(image=img)
 
         image_id = canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
         self.loaded_images.append(img_tk)  # Mantener una referencia a la imagen
+        self.image_refs.append(img_tk)  # Mantener una referencia para evitar recolección de basura
         self.image_ids.append(image_id)  # Mantener una referencia al ID de la imagen en el canvas
 
         def on_drag(event):
@@ -239,10 +240,23 @@ class AdminGUI:
 
         canvas.tag_bind(image_id, "<B1-Motion>", on_drag)
 
-    def superponer_imagenes(self):
-        self
-        # Implementar acá
+    def superponer_imagenes(self, canvas):
+        if len(self.image_paths) < 2:
+            print("Hay menos de 2 imágenes, no se puede superponer.")
+            return
+        img_combinada = Image.open(self.image_paths[0]).convert("RGBA")
 
+        for i in range(1, len(self.image_paths)):
+            img_aux = Image.open(self.image_paths[i]).convert("RGBA")
+            posicion = (100, 100)
+
+            img_combinada.paste(img_aux, posicion, img_aux)
+
+        img_tk = ImageTk.PhotoImage(image=img_combinada)
+        self.image_refs.append(img_tk)
+
+        canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+        canvas.image = img_tk
 
     def close_blank_board(self, blank_board_window):
         blank_board_window.destroy()

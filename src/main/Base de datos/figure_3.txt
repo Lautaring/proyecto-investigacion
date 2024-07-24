@@ -1,5 +1,5 @@
-Ruta: C:\Users\Usuario\Documents\Github\proyecto-investigacion\src\main\resources\figure_2.png
-Nombre del Factor: 2121
+Ruta: C:\Users\Usuario\Documents\Github\proyecto-investigacion\src\main\resources\figure_3.png
+Nombre del Factor: 21
 Diversidad: 21.0
 Masa Crítica: 21.0
 Orden: 21.0

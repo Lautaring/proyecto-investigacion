@@ -23,7 +23,9 @@ class AdminGUI:
         self.canvas = tk.Canvas(self.image_frame, width=600, height=600)
         self.canvas.pack()
 
-        self.tablero = Tablero(self.canvas, 600, 600)
+        pixel_size = 10 
+        self.tablero = Tablero(self.canvas, 600 // pixel_size, 600 // pixel_size, pixel_size)
+
 
         self.cargar_imagen_button = tk.Button(self.image_frame, text="Cargar Imagen", command=self.cargar_imagen)
         self.cargar_imagen_button.pack()
@@ -40,6 +42,9 @@ class AdminGUI:
 
         self.image_paths = self.obtener_rutas_imagen()
 
+        self.ruta_imagen_actual = None
+
+
     def obtener_rutas_imagen(self):
         base_dir = os.path.dirname(os.path.abspath(__file__)) 
         resources_dir = os.path.join(base_dir, 'resources') 
@@ -52,29 +57,52 @@ class AdminGUI:
     def cargar_imagen(self):
         try:
             print("image_paths: ", self.image_paths)
-            img_path = self.image_paths[0]
+            self.indice_imagen_actual = 0 
+            img_path = self.image_paths[self.indice_imagen_actual]
             self.last_img_path = img_path
+            self.ruta_imagen_actual = img_path 
             self.img = cv2.imread(img_path)
-            self.mostrar_imagen()
-            self.crear_formulario()
+            if self.img is not None:
+                self.mostrar_imagen(self.indice_imagen_actual)  
+                self.crear_formulario()
+            else:
+                print(f"No se pudo cargar la imagen {img_path}")
         except NameError:
             print("Error: Variable no definida")
-        except:
-            print("Error al cargar la imagen: No existe el archivo")
+        except Exception as e:
+            print(f"Error al cargar la imagen: {e}")
 
-    def mostrar_imagen(self):
-        img_rgb = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+
+
+
+    def mostrar_imagen(self, indice):
+        if indice >= len(self.image_paths):
+            print("No hay más imágenes.")
+            return
+
+        img_path = self.image_paths[indice]
+        img = cv2.imread(img_path)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(img_rgb)
+        img_tk = ImageTk.PhotoImage(image=img_pil)
 
-        original_width, original_height = img_pil.size
+        if hasattr(self, 'canvas_blank_board'): 
+            self.canvas_blank_board.delete("all")
+            self.id_imagen_actual = self.canvas_blank_board.create_image(0, 0, anchor=tk.NW, image=img_tk)
+            self.canvas_blank_board.image = img_tk
 
-        new_width = original_width
-        new_height = original_height
-        img_pil_resized = img_pil.resize((new_width, new_height), Image.LANCZOS)
+            def on_drag(event):
+                self.canvas_blank_board.coords(self.id_imagen_actual, event.x, event.y)
 
-        img_tk = ImageTk.PhotoImage(image=img_pil_resized)
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
-        self.canvas.image = img_tk
+            self.canvas_blank_board.tag_bind(self.id_imagen_actual, "<B1-Motion>", on_drag)
+        else:
+            self.canvas.delete("all")
+            self.id_imagen_actual = self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+            self.canvas.image = img_tk 
+
+
+
+
 
     def crear_formulario(self):
         tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=0, column=0)
@@ -153,15 +181,18 @@ class AdminGUI:
         if current_index < len(self.image_paths):
             next_img_path = self.image_paths[current_index]
             self.last_img_path = next_img_path
+            self.ruta_imagen_actual = next_img_path 
             self.img = cv2.imread(next_img_path)
             if self.img is not None:
-                self.mostrar_imagen()
+                self.mostrar_imagen(current_index)
                 self.crear_formulario()
             else:
                 print(f"No se pudo cargar la imagen {next_img_path}")
         else:
             print("No hay más imágenes para cargar.")
             self.mostrar_pizarra()
+
+
 
     def limpiar_formulario(self):
         self.factor_name_entry.delete(0, tk.END)
@@ -178,27 +209,36 @@ class AdminGUI:
     def mostrar_pizarra(self):
         self.master.withdraw()
 
-        blank_board_window = tk.Toplevel()
-        blank_board_window.title("Tablero en Blanco")
-        blank_board_window.geometry("900x900")
+        self.blank_board_window = tk.Toplevel()
+        self.blank_board_window.title("Tablero en Blanco")
+        self.blank_board_window.geometry("900x900")
 
-        canvas_blank_board = tk.Canvas(blank_board_window, width=600, height=600, bg="white")
-        canvas_blank_board.pack()
+        self.canvas_blank_board = tk.Canvas(self.blank_board_window, width=600, height=600, bg="white")
+        self.canvas_blank_board.pack()
 
-        self.loaded_images = []
+        self.indice_imagen_actual = 0
+        self.mostrar_imagen(self.indice_imagen_actual)
 
-        self.image_ids = []
+        self.btn_confirmar = tk.Button(self.blank_board_window, text="Confirmar", command=self.confirmar_ubicacion)
+        self.btn_confirmar.pack()
 
-        self.cargar_y_hacer_arrastrable(canvas_blank_board, self.image_paths[0], 100, 100)
-        self.cargar_y_hacer_arrastrable(canvas_blank_board, self.image_paths[1], 300, 300)
+        self.btn_cerrar = tk.Button(self.blank_board_window, text="Cerrar", command=self.cerrar_pizarra_blanca)
+        self.btn_cerrar.pack()
 
-        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(canvas_blank_board))
-        btn_superponer.pack()
+        self.blank_board_window.protocol("WM_DELETE_WINDOW", self.cerrar_pizarra_blanca)
 
-        btn_close = tk.Button(blank_board_window, text="Cerrar", command=lambda: self.cerrar_pizarra_blanca(blank_board_window))
-        btn_close.pack()
 
-        blank_board_window.protocol("WM_DELETE_WINDOW", lambda: self.cerrar_pizarra_blanca(blank_board_window))
+    def confirmar_ubicacion(self):
+        x, y = self.canvas_blank_board.coords(self.id_imagen_actual)
+        print(f"Imagen {self.ruta_imagen_actual} ubicada en: ({x}, {y})")
+        
+        self.indice_imagen_actual += 1
+        if self.indice_imagen_actual < len(self.image_paths):
+            self.mostrar_imagen(self.indice_imagen_actual)
+        else:
+            print("Has terminado de ubicar todas las imágenes.")
+            self.cerrar_pizarra_blanca()
+
 
     def cargar_y_hacer_arrastrable(self, canvas, img_path, x, y):
         img = cv2.imread(img_path)
@@ -207,14 +247,15 @@ class AdminGUI:
         img_tk = ImageTk.PhotoImage(image=img_pil)
 
         image_id = canvas.create_image(x, y, anchor=tk.NW, image=img_tk)
-        self.loaded_images.append(img_tk)  # Mantener una referencia a la imagen
-        self.image_refs.append(img_tk)  # Mantener una referencia para evitar recolección de basura
-        self.image_ids.append(image_id)  # Mantener una referencia al ID de la imagen en el canvas
+        self.loaded_images.append(img_tk)
+        self.image_refs.append(img_tk)
+        self.image_ids.append(image_id)
 
         def on_drag(event):
             canvas.coords(image_id, event.x, event.y)
 
         canvas.tag_bind(image_id, "<B1-Motion>", on_drag)
+
 
     def superponer_imagenes(self, canvas):
         if len(self.image_paths) < 2:
@@ -225,7 +266,7 @@ class AdminGUI:
 
         for i in range(1, len(self.image_paths)):
             img_aux = Image.open(self.image_paths[i]).convert("RGBA")
-            posicion = (100, 100)
+            posicion = (0, 0)
 
             img_combinada.paste(img_aux, posicion, img_aux)
 
@@ -233,6 +274,7 @@ class AdminGUI:
         canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
         self.image_refs.append(img_tk)
 
-    def cerrar_pizarra_blanca(self, blank_board_window):
-        blank_board_window.destroy()
-        self.master.destroy()
+    def cerrar_pizarra_blanca(self):
+        self.blank_board_window.destroy()
+        self.master.deiconify() 
+

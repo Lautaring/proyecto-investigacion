@@ -20,7 +20,7 @@ class AdminGUI:
         self.form_frame = tk.Frame(self.master)
         self.form_frame.pack(side=tk.RIGHT)
 
-        self.canvas = tk.Canvas(self.image_frame, width=400, height=400)
+        self.canvas = tk.Canvas(self.image_frame, width=600, height=600)
         self.canvas.pack()
 
         self.tablero = Tablero(self.canvas, 600, 600)
@@ -34,40 +34,25 @@ class AdminGUI:
         self.diversity_entry = None
         self.last_img_path = None
 
-        # Inicializar el diccionario para almacenar los factores
+        self.image_refs = []
+
         self.factors_dict = {}
 
-    #Obtener las rutas relativas de la imagen y guardarlas en una lista de paths para luego utilizarlas
-    # Obtener la lista de rutas de las imágenes
         self.image_paths = self.obtener_rutas_imagen()
 
     def obtener_rutas_imagen(self):
-        # Buscar todos los archivos que coincidan con el patrón 'figureX.png' en la subcarpeta resources
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # Obtiene el directorio del script actual
-        resources_dir = os.path.join(base_dir, 'resources')  # Directorio de la subcarpeta resources
+        base_dir = os.path.dirname(os.path.abspath(__file__)) 
+        resources_dir = os.path.join(base_dir, 'resources') 
         image_files = glob.glob(os.path.join(resources_dir, 'figure*.png'))
 
-        # Ordenar los archivos por nombre para asegurar el orden correcto
         image_files.sort()
 
         return image_files
-    """    def cargar_imagen(self):
-        img_path = filedialog.askopenfilename()  # Esto me deja elegir archivos
-        if img_path:  # Si se seleccionó algo entonces
-            self.last_img_path = img_path  # Almacena la ruta de la imagen cargada
-            self.img = cv2.imread(img_path)
-            if self.img is not None:
-                self.mostrar_imagen()
-                self.crear_formulario()
-            else:
-                print(f"No se pudo cargar la imagen {img_path}")"""
 
-    #Carga de imagenes automática
     def cargar_imagen(self):
-        try: 
+        try:
             print("image_paths: ", self.image_paths)
             img_path = self.image_paths[0]
-            #img_path = "D:\\MEGA\\MEGAsyncUploads\\IngenieriaEnInformatica\\CursadoDeLaCarrera\\ProyectoDeInvestigacion\\src\\main\\resources\\figure_1.png"
             self.last_img_path = img_path
             self.img = cv2.imread(img_path)
             self.mostrar_imagen()
@@ -77,30 +62,15 @@ class AdminGUI:
         except:
             print("Error al cargar la imagen: No existe el archivo")
 
-
     def mostrar_imagen(self):
         img_rgb = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(img_rgb)
 
-        # obtener las dimensiones de la window
-        window_width = self.master.winfo_width()
-        window_height = self.master.winfo_height()
-
-        # Obtener las dimensiones originales de la imagen
         original_width, original_height = img_pil.size
 
-        # factor de escala
-        width_ratio = window_width / original_width
-        height_ratio = window_height / original_height
-        scale_factor = min(width_ratio, height_ratio)
-
-        # redimensiono la imagen utilizando el factor de escala
-        new_width = int(original_width * scale_factor)
-        new_height = int(original_height * scale_factor)
+        new_width = original_width
+        new_height = original_height
         img_pil_resized = img_pil.resize((new_width, new_height), Image.LANCZOS)
-
-        # ajustamos el lienzo con respecto a la ventana (verlo bien)
-        self.canvas.config(width=window_width, height=window_height)
 
         img_tk = ImageTk.PhotoImage(image=img_pil_resized)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
@@ -146,36 +116,28 @@ class AdminGUI:
         coef_crecimiento = float(self.coef_crecimiento_entry.get())
         coef_mantenimiento = float(self.coef_mantenimiento_entry.get())
 
-        # Crear un objeto Factor con las propiedades ingresadas
         factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, None)
 
-        if self.last_img_path:  # Verificar si se cargó una imagen previamente
-            # Obtener la ruta de la imagen cargada
+        if self.last_img_path: 
             img_path = self.last_img_path
 
-            # Me guardo el factor junto con la imagen en el diccionario
             self.factors_dict[img_path] = factor
-            self.guardar_en_archivo(img_path, factor)  # Llamar a la función para guardar en archivo
+            self.guardar_en_archivo(img_path, factor) 
             self.clear_canvas()
             self.limpiar_formulario()
 
-            # Cargar la siguiente imagen y mostrarla
             self.cargar_siguiente_imagen()
 
-
     def guardar_en_archivo(self, img_path, factor):
-        # Crear la subcarpeta "base de datos" si no existe
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # Obtiene el directorio del script actual
+        base_dir = os.path.dirname(os.path.abspath(__file__)) 
         database_dir = os.path.join(base_dir, 'Base de datos')
         if not os.path.exists(database_dir):
             os.makedirs(database_dir)
 
-        # Obtener el nombre de archivo basado en la imagen
         img_name = os.path.basename(img_path)
         file_name = f"{os.path.splitext(img_name)[0]}.txt"
         file_path = os.path.join(database_dir, file_name)
 
-        # Guardar los datos en el archivo
         with open(file_path, "w") as file:
             file.write(f"Ruta: {img_path}\n")
             file.write(f"Nombre del Factor: {factor.nombre}\n")
@@ -185,10 +147,9 @@ class AdminGUI:
             file.write(f"Calidad: {factor.calidad}\n")
             file.write(f"Coeficiente de Crecimiento: {factor.coeficiente_crecimiento}\n")
             file.write(f"Coeficiente de Mantenimiento: {factor.coeficiente_mantenimiento}\n")
-    
-    #Sirve para la carga de imagenes automática
+
     def cargar_siguiente_imagen(self):
-        current_index = len(self.factors_dict)  # Índice de la imagen actual
+        current_index = len(self.factors_dict)
         if current_index < len(self.image_paths):
             next_img_path = self.image_paths[current_index]
             self.last_img_path = next_img_path
@@ -199,11 +160,10 @@ class AdminGUI:
             else:
                 print(f"No se pudo cargar la imagen {next_img_path}")
         else:
-            print("No hay más imágenes para cargar.") 
+            print("No hay más imágenes para cargar.")
             self.mostrar_pizarra()
-            
+
     def limpiar_formulario(self):
-        # Borra los valores de todos los campos del formulario
         self.factor_name_entry.delete(0, tk.END)
         self.diversity_entry.delete(0, tk.END)
         self.masa_critica_entry.delete(0, tk.END)
@@ -216,37 +176,28 @@ class AdminGUI:
         self.canvas.delete("all")
 
     def mostrar_pizarra(self):
-        # Ocultar la ventana principal
         self.master.withdraw()
 
-        # Crear una nueva ventana para mostrar el tablero en blanco
         blank_board_window = tk.Toplevel()
         blank_board_window.title("Tablero en Blanco")
         blank_board_window.geometry("900x900")
 
-        # Crear un lienzo en blanco de 900px por 900px
         canvas_blank_board = tk.Canvas(blank_board_window, width=600, height=600, bg="white")
         canvas_blank_board.pack()
 
-        # Almacenar referencias a las imágenes cargadas
         self.loaded_images = []
 
-        # Almacenar referencias a los IDs de las imágenes en el canvas
         self.image_ids = []
 
-        # Cargar las imágenes y hacerlas arrastrables en el lienzo del tablero
-        self.cargar_y_hacer_arrastrable(self.tablero.canvas, self.image_paths[0], 100, 100)
-        self.cargar_y_hacer_arrastrable(self.tablero.canvas, self.image_paths[1], 300, 300)
+        self.cargar_y_hacer_arrastrable(canvas_blank_board, self.image_paths[0], 100, 100)
+        self.cargar_y_hacer_arrastrable(canvas_blank_board, self.image_paths[1], 300, 300)
 
-        # Botón para superponer las imágenes
-        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(self.tablero.canvas))
+        btn_superponer = tk.Button(blank_board_window, text="Superponer", command=lambda: self.superponer_imagenes(canvas_blank_board))
         btn_superponer.pack()
 
-        # Agregar un botón para cerrar la ventana y la principal
         btn_close = tk.Button(blank_board_window, text="Cerrar", command=lambda: self.cerrar_pizarra_blanca(blank_board_window))
         btn_close.pack()
 
-        # Asociar el evento de cierre de la ventana del tablero en blanco
         blank_board_window.protocol("WM_DELETE_WINDOW", lambda: self.cerrar_pizarra_blanca(blank_board_window))
 
     def cargar_y_hacer_arrastrable(self, canvas, img_path, x, y):
@@ -265,10 +216,22 @@ class AdminGUI:
 
         canvas.tag_bind(image_id, "<B1-Motion>", on_drag)
 
-    def superponer_imagenes(self):
-        self
-        # Implementar acá
+    def superponer_imagenes(self, canvas):
+        if len(self.image_paths) < 2:
+            print("Hay menos de 2 imágenes, no se puede superponer.")
+            return
+        
+        img_combinada = Image.open(self.image_paths[0]).convert("RGBA")
 
+        for i in range(1, len(self.image_paths)):
+            img_aux = Image.open(self.image_paths[i]).convert("RGBA")
+            posicion = (100, 100)
+
+            img_combinada.paste(img_aux, posicion, img_aux)
+
+        img_tk = ImageTk.PhotoImage(image=img_combinada)
+        canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+        self.image_refs.append(img_tk)
 
     def cerrar_pizarra_blanca(self, blank_board_window):
         blank_board_window.destroy()

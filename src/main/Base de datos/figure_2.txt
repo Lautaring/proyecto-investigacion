@@ -1,8 +1,8 @@
-Ruta: C:\Users\Usuario\Documents\Github\proyecto-investigacion\src\main\resources\figure_2.png
-Nombre del Factor: 2121
-Diversidad: 21.0
-Masa Cr�tica: 21.0
-Orden: 21.0
-Calidad: 21.0
-Coeficiente de Crecimiento: 21.0
-Coeficiente de Mantenimiento: 21.0
+Ruta: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Cursado de la carrera/Proyecto de Investigación/src/main/resources/figure_2.png
+Nombre del Factor: 1
+Diversidad: 1.0
+Masa Crítica: 1.0
+Orden: 1.0
+Calidad: 1.0
+Coeficiente de Crecimiento: 1.0
+Coeficiente de Mantenimiento: 1.0

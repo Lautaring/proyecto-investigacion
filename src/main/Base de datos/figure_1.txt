@@ -1,8 +1,8 @@
 Ruta: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Cursado de la carrera/Proyecto de Investigación/src/main/resources/figure_1.png
-Nombre del Factor: Hola
+Nombre del Factor: saf
 Diversidad: 1.0
 Masa Crítica: 1.0
-Orden: 1.0
+Orden: 11.0
 Calidad: 1.0
 Coeficiente de Crecimiento: 1.0
 Coeficiente de Mantenimiento: 1.0

@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from logic.Rol import Rol
 from logic.Factor import Factor
 from logic.Tablero import Tablero
-from logic.Validacion import Validacion
+"""from logic.Validacion import Validacion"""
 from tkinter import messagebox
 import glob
 import os
@@ -107,35 +107,60 @@ class AdminGUI:
 
 
     def crear_formulario(self):
-        tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=0, column=0)
+        # Menú desplegable para el tipo de factor
+        tk.Label(self.form_frame, text="Tipo de factor: ").grid(row=0, column=0)
+        self.tipo_factor_var = tk.StringVar(self.form_frame)
+        self.tipo_factor_var.set("Selecciona un tipo")  # Valor por defecto
+        tipo_factor_options = ["Fisico", "Simbolico", "Cultural"]
+        self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
+        self.tipo_factor_menu.grid(row=0, column=1)
+
+        # Menú desplegable para los componentes del factor
+        tk.Label(self.form_frame, text="Componente del Factor:").grid(row=1, column=0)
+        self.componente_var = tk.StringVar(self.form_frame)
+        self.componente_var.set("Selecciona un componente")  # Valor por defecto
+        componente_options = [f"Componente {i}" for i in range(1, 11)]
+        self.componente_menu = tk.OptionMenu(self.form_frame, self.componente_var, *componente_options)
+        self.componente_menu.grid(row=1, column=1)
+
+        # Otros campos del formulario
+        tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=2, column=0)
         self.factor_name_entry = tk.Entry(self.form_frame)
-        self.factor_name_entry.grid(row=0, column=1)
+        self.factor_name_entry.grid(row=2, column=1)
 
-        tk.Label(self.form_frame, text="Diversidad:").grid(row=1, column=0)
+        tk.Label(self.form_frame, text="Diversidad:").grid(row=3, column=0)
         self.diversity_entry = tk.Entry(self.form_frame)
-        self.diversity_entry.grid(row=1, column=1)
+        self.diversity_entry.grid(row=3, column=1)
 
-        tk.Label(self.form_frame, text="Masa Crítica:").grid(row=2, column=0)
+        tk.Label(self.form_frame, text="Masa Crítica:").grid(row=4, column=0)
         self.masa_critica_entry = tk.Entry(self.form_frame)
-        self.masa_critica_entry.grid(row=2, column=1)
+        self.masa_critica_entry.grid(row=4, column=1)
 
-        tk.Label(self.form_frame, text="Orden:").grid(row=3, column=0)
+        tk.Label(self.form_frame, text="Orden:").grid(row=5, column=0)
         self.orden_entry = tk.Entry(self.form_frame)
-        self.orden_entry.grid(row=3, column=1)
+        self.orden_entry.grid(row=5, column=1)
 
-        tk.Label(self.form_frame, text="Calidad:").grid(row=4, column=0)
+        tk.Label(self.form_frame, text="Calidad:").grid(row=6, column=0)
         self.calidad_entry = tk.Entry(self.form_frame)
-        self.calidad_entry.grid(row=4, column=1)
+        self.calidad_entry.grid(row=6, column=1)
 
-        tk.Label(self.form_frame, text="Coeficiente de Crecimiento:").grid(row=5, column=0)
+        tk.Label(self.form_frame, text="Coeficiente de Crecimiento:").grid(row=7, column=0)
         self.coef_crecimiento_entry = tk.Entry(self.form_frame)
-        self.coef_crecimiento_entry.grid(row=5, column=1)
+        self.coef_crecimiento_entry.grid(row=7, column=1)
 
-        tk.Label(self.form_frame, text="Coeficiente de Mantenimiento:").grid(row=6, column=0)
+        tk.Label(self.form_frame, text="Coeficiente de Mantenimiento:").grid(row=8, column=0)
         self.coef_mantenimiento_entry = tk.Entry(self.form_frame)
-        self.coef_mantenimiento_entry.grid(row=6, column=1)
+        self.coef_mantenimiento_entry.grid(row=8, column=1)
+        
+        # Menú desplegable para los roles del factor
+        tk.Label(self.form_frame, text="Tipo de Rol: ").grid(row=9, column=0)
+        self.tipo_factor_var = tk.StringVar(self.form_frame)
+        self.tipo_factor_var.set("Selecciona un rol")  # Valor por defecto
+        tipo_factor_options = ["Gestor", "Transmisor", "Productor"]
+        self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
+        self.tipo_factor_menu.grid(row=9, column=1)
 
-        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=7, columnspan=2)
+        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=10, columnspan=2)
 
     def guardar_factor(self):
         if not self.validar_campos():

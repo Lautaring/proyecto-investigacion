@@ -72,9 +72,6 @@ class AdminGUI:
         except Exception as e:
             print(f"Error al cargar la imagen: {e}")
 
-
-
-
     def mostrar_imagen(self, indice):
         if indice >= len(self.image_paths):
             print("No hay más imágenes.")
@@ -99,10 +96,6 @@ class AdminGUI:
             self.canvas.delete("all")
             self.id_imagen_actual = self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
             self.canvas.image = img_tk 
-
-
-
-
 
     def crear_formulario(self):
         tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=0, column=0)
@@ -221,6 +214,7 @@ class AdminGUI:
 
         self.btn_confirmar = tk.Button(self.blank_board_window, text="Confirmar", command=self.confirmar_ubicacion)
         self.btn_confirmar.pack()
+        
 
         self.btn_cerrar = tk.Button(self.blank_board_window, text="Cerrar", command=self.cerrar_pizarra_blanca)
         self.btn_cerrar.pack()
@@ -237,8 +231,12 @@ class AdminGUI:
             self.mostrar_imagen(self.indice_imagen_actual)
         else:
             print("Has terminado de ubicar todas las imágenes.")
-            self.cerrar_pizarra_blanca()
+            # self.cerrar_pizarra_blanca()
+            self.btn_confirmar.pack()
+            self.cargar_tablero()
 
+    def cargar_tablero(self): # aca tengo que cargar el tabkero
+        print("Tablero cargado")
 
     def cargar_y_hacer_arrastrable(self, canvas, img_path, x, y):
         img = cv2.imread(img_path)
@@ -266,9 +264,8 @@ class AdminGUI:
 
         for i in range(1, len(self.image_paths)):
             img_aux = Image.open(self.image_paths[i]).convert("RGBA")
-            posicion = (0, 0)
 
-            img_combinada.paste(img_aux, posicion, img_aux)
+            img_combinada.paste(img_aux, img_aux)
 
         img_tk = ImageTk.PhotoImage(image=img_combinada)
         canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)

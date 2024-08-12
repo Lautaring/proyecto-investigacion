@@ -2,6 +2,7 @@ import tkinter as tk
 from AdminGUI import AdminGUI
 from logic.Tablero import Tablero
 
+
 def main():
     root = tk.Tk()
     app = AdminGUI(root)

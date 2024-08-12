@@ -6,6 +6,8 @@ from PIL import Image, ImageTk
 from logic.Rol import Rol
 from logic.Factor import Factor
 from logic.Tablero import Tablero
+"""from logic.Validacion import Validacion"""
+from tkinter import messagebox
 import glob
 import os
 
@@ -98,37 +100,65 @@ class AdminGUI:
             self.canvas.image = img_tk 
 
     def crear_formulario(self):
-        tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=0, column=0)
+        # Menú desplegable para el tipo de factor
+        tk.Label(self.form_frame, text="Tipo de factor: ").grid(row=0, column=0)
+        self.tipo_factor_var = tk.StringVar(self.form_frame)
+        self.tipo_factor_var.set("Selecciona un tipo")  # Valor por defecto
+        tipo_factor_options = ["Fisico", "Simbolico", "Cultural"]
+        self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
+        self.tipo_factor_menu.grid(row=0, column=1)
+
+        # Menú desplegable para los componentes del factor
+        tk.Label(self.form_frame, text="Componente del Factor:").grid(row=1, column=0)
+        self.componente_var = tk.StringVar(self.form_frame)
+        self.componente_var.set("Selecciona un componente")  # Valor por defecto
+        componente_options = [f"Componente {i}" for i in range(1, 11)]
+        self.componente_menu = tk.OptionMenu(self.form_frame, self.componente_var, *componente_options)
+        self.componente_menu.grid(row=1, column=1)
+
+        # Otros campos del formulario
+        tk.Label(self.form_frame, text="Nombre del Factor:").grid(row=2, column=0)
         self.factor_name_entry = tk.Entry(self.form_frame)
-        self.factor_name_entry.grid(row=0, column=1)
+        self.factor_name_entry.grid(row=2, column=1)
 
-        tk.Label(self.form_frame, text="Diversidad:").grid(row=1, column=0)
+        tk.Label(self.form_frame, text="Diversidad:").grid(row=3, column=0)
         self.diversity_entry = tk.Entry(self.form_frame)
-        self.diversity_entry.grid(row=1, column=1)
+        self.diversity_entry.grid(row=3, column=1)
 
-        tk.Label(self.form_frame, text="Masa Crítica:").grid(row=2, column=0)
+        tk.Label(self.form_frame, text="Masa Crítica:").grid(row=4, column=0)
         self.masa_critica_entry = tk.Entry(self.form_frame)
-        self.masa_critica_entry.grid(row=2, column=1)
+        self.masa_critica_entry.grid(row=4, column=1)
 
-        tk.Label(self.form_frame, text="Orden:").grid(row=3, column=0)
+        tk.Label(self.form_frame, text="Orden:").grid(row=5, column=0)
         self.orden_entry = tk.Entry(self.form_frame)
-        self.orden_entry.grid(row=3, column=1)
+        self.orden_entry.grid(row=5, column=1)
 
-        tk.Label(self.form_frame, text="Calidad:").grid(row=4, column=0)
+        tk.Label(self.form_frame, text="Calidad:").grid(row=6, column=0)
         self.calidad_entry = tk.Entry(self.form_frame)
-        self.calidad_entry.grid(row=4, column=1)
+        self.calidad_entry.grid(row=6, column=1)
 
-        tk.Label(self.form_frame, text="Coeficiente de Crecimiento:").grid(row=5, column=0)
+        tk.Label(self.form_frame, text="Coeficiente de Crecimiento:").grid(row=7, column=0)
         self.coef_crecimiento_entry = tk.Entry(self.form_frame)
-        self.coef_crecimiento_entry.grid(row=5, column=1)
+        self.coef_crecimiento_entry.grid(row=7, column=1)
 
-        tk.Label(self.form_frame, text="Coeficiente de Mantenimiento:").grid(row=6, column=0)
+        tk.Label(self.form_frame, text="Coeficiente de Mantenimiento:").grid(row=8, column=0)
         self.coef_mantenimiento_entry = tk.Entry(self.form_frame)
-        self.coef_mantenimiento_entry.grid(row=6, column=1)
+        self.coef_mantenimiento_entry.grid(row=8, column=1)
+        
+        # Menú desplegable para los roles del factor
+        tk.Label(self.form_frame, text="Tipo de Rol: ").grid(row=9, column=0)
+        self.tipo_factor_var = tk.StringVar(self.form_frame)
+        self.tipo_factor_var.set("Selecciona un rol")  # Valor por defecto
+        tipo_factor_options = ["Gestor", "Transmisor", "Productor"]
+        self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
+        self.tipo_factor_menu.grid(row=9, column=1)
 
-        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=7, columnspan=2)
+        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=10, columnspan=2)
 
     def guardar_factor(self):
+        if not self.validar_campos():
+            return
+        
         nombre = self.factor_name_entry.get()
         diversidad = float(self.diversity_entry.get())
         masa_critica = float(self.masa_critica_entry.get())
@@ -138,7 +168,7 @@ class AdminGUI:
         coef_mantenimiento = float(self.coef_mantenimiento_entry.get())
 
         factor = Factor(nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento, None)
-
+        
         if self.last_img_path: 
             img_path = self.last_img_path
 
@@ -215,7 +245,6 @@ class AdminGUI:
         self.btn_confirmar = tk.Button(self.blank_board_window, text="Confirmar", command=self.confirmar_ubicacion)
         self.btn_confirmar.pack()
         
-
         self.btn_cerrar = tk.Button(self.blank_board_window, text="Cerrar", command=self.cerrar_pizarra_blanca)
         self.btn_cerrar.pack()
 
@@ -235,8 +264,23 @@ class AdminGUI:
             self.btn_confirmar.pack()
             self.cargar_tablero()
 
-    def cargar_tablero(self): # aca tengo que cargar el tabkero
-        print("Tablero cargado")
+    def cargar_tablero(self):
+        # Iterar sobre las imágenes cargadas y guardarlas en el tablero
+        for img_path, factor in self.factors_dict.items():
+            # Supongamos que ya se tiene la posición de la imagen en el tablero (x, y)
+            x, y = self.canvas_blank_board.coords(self.image_ids[self.image_paths.index(img_path)])
+            fila = int(y // self.tablero.pixel_size)
+            columna = int(x // self.tablero.pixel_size)
+
+            color = "#%02x%02x%02x" % (int(255 * factor.diversidad), int(255 * factor.calidad), int(255 * factor.orden))
+            
+            self.tablero.agregar_celda(fila, columna, color)
+
+        self.tablero.dibujar_tablero()
+
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tablero_file = os.path.join(base_dir, 'tablero_guardado.txt')
+        self.tablero.guardar_tablero(tablero_file)
 
     def cargar_y_hacer_arrastrable(self, canvas, img_path, x, y):
         img = cv2.imread(img_path)
@@ -253,7 +297,6 @@ class AdminGUI:
             canvas.coords(image_id, event.x, event.y)
 
         canvas.tag_bind(image_id, "<B1-Motion>", on_drag)
-
 
     def superponer_imagenes(self, canvas):
         if len(self.image_paths) < 2:
@@ -275,3 +318,52 @@ class AdminGUI:
         self.blank_board_window.destroy()
         self.master.deiconify() 
 
+    """Valida que el valor sea un string no vacío"""
+
+    def validar_campos(self):
+        """Valida que todos los campos del formulario estén llenos y que los valores sean correctos."""
+        # Obtener los valores de los campos
+        nombre = self.factor_name_entry.get().strip()
+        diversidad = self.diversity_entry.get().strip()
+        masa_critica = self.masa_critica_entry.get().strip()
+        orden = self.orden_entry.get().strip()
+        calidad = self.calidad_entry.get().strip()
+        coef_crecimiento = self.coef_crecimiento_entry.get().strip()
+        coef_mantenimiento = self.coef_mantenimiento_entry.get().strip()
+
+        # Verificar que ninguno de los campos esté vacío
+        if not nombre:
+            messagebox.showerror("Error", "El nombre del factor no puede estar vacío.")
+            return False
+        if not diversidad:
+            messagebox.showerror("Error", "La diversidad no puede estar vacía.")
+            return False
+        if not masa_critica:
+            messagebox.showerror("Error", "La masa crítica no puede estar vacía.")
+            return False
+        if not orden:
+            messagebox.showerror("Error", "El orden no puede estar vacío.")
+            return False
+        if not calidad:
+            messagebox.showerror("Error", "La calidad no puede estar vacía.")
+            return False
+        if not coef_crecimiento:
+            messagebox.showerror("Error", "El coeficiente de crecimiento no puede estar vacío.")
+            return False
+        if not coef_mantenimiento:
+            messagebox.showerror("Error", "El coeficiente de mantenimiento no puede estar vacío.")
+            return False
+
+        # Verificar que los valores numéricos sean válidos
+        try:
+            float(diversidad)
+            float(masa_critica)
+            float(orden)
+            float(calidad)
+            float(coef_crecimiento)
+            float(coef_mantenimiento)
+        except ValueError:
+            messagebox.showerror("Error", "Todos los valores numéricos deben ser válidos.")
+            return False
+
+        return True

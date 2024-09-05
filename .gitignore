@@ -21,3 +21,4 @@ src/main/Base de datos/
 *.swp
 *.tmp
 *.temp
+*.pyc

@@ -103,7 +103,7 @@ class AdminGUI:
         # Menú desplegable para el tipo de factor
         tk.Label(self.form_frame, text="Tipo de factor: ").grid(row=0, column=0)
         self.tipo_factor_var = tk.StringVar(self.form_frame)
-        self.tipo_factor_var.set("Selecciona un tipo")  # Valor por defecto
+        self.tipo_factor_var.set("Fisico")  # Valor por defecto
         tipo_factor_options = ["Fisico", "Simbolico", "Cultural"]
         self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
         self.tipo_factor_menu.grid(row=0, column=1)
@@ -111,7 +111,7 @@ class AdminGUI:
         # Menú desplegable para los componentes del factor
         tk.Label(self.form_frame, text="Componente del Factor:").grid(row=1, column=0)
         self.componente_var = tk.StringVar(self.form_frame)
-        self.componente_var.set("Selecciona un componente")  # Valor por defecto
+        self.componente_var.set("Componente 1")  # Valor por defecto
         componente_options = [f"Componente {i}" for i in range(1, 11)]
         self.componente_menu = tk.OptionMenu(self.form_frame, self.componente_var, *componente_options)
         self.componente_menu.grid(row=1, column=1)
@@ -148,7 +148,7 @@ class AdminGUI:
         # Menú desplegable para los roles del factor
         tk.Label(self.form_frame, text="Tipo de Rol: ").grid(row=9, column=0)
         self.tipo_factor_var = tk.StringVar(self.form_frame)
-        self.tipo_factor_var.set("Selecciona un rol")  # Valor por defecto
+        self.tipo_factor_var.set("Gestor")  # Valor por defecto
         tipo_factor_options = ["Gestor", "Transmisor", "Productor"]
         self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
         self.tipo_factor_menu.grid(row=9, column=1)

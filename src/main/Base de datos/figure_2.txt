@@ -1,8 +1,0 @@
-Ruta: /home/lautaro/Documentos/Repositorios/proyecto-investigacion/src/main/resources/figure_2.png
-Nombre del Factor: 8
-Diversidad: 8.0
-Masa Crítica: 8.0
-Orden: 8.0
-Calidad: 88.0
-Coeficiente de Crecimiento: 878888.0
-Coeficiente de Mantenimiento: 8.0

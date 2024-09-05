@@ -1,8 +1,0 @@
-Ruta: /home/lautaro/Documentos/Repositorios/proyecto-investigacion/src/main/resources/figure_1.png
-Nombre del Factor: 9
-Diversidad: 9.0
-Masa Crítica: 9.0
-Orden: 9.0
-Calidad: 99.0
-Coeficiente de Crecimiento: 9.0
-Coeficiente de Mantenimiento: 9.0

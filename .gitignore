@@ -1,0 +1,4 @@
+.venv
+src/main/__pycache__/
+src/main/logic/__pycache__/
+src/main/"Base de datos"/

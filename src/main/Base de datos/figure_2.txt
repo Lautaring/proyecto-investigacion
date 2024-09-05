@@ -1,0 +1,8 @@
+Ruta: /home/lautaro/Documentos/Repositorios/proyecto-investigacion/src/main/resources/figure_2.png
+Nombre del Factor: 3
+Diversidad: 3.0
+Masa Crítica: 3.0
+Orden: 3.0
+Calidad: 3.0
+Coeficiente de Crecimiento: 3.0
+Coeficiente de Mantenimiento: 3.0

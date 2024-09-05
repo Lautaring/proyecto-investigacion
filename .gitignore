@@ -1,4 +1,23 @@
-.venv
-src/main/__pycache__/
+# Entorno virtual
+.venv/
+
+# Compilaciones de Python
+*.py[cod]
+__pycache__/
+**/__pycache__/
+
+# Configuraciones del entorno local y base de datos
 src/main/logic/__pycache__/
-src/main/Base\ de\ datos/
+src/main/Base de datos/
+
+# Archivos de configuración de VS Code (si usas VS Code)
+.vscode/
+
+# Archivos de logs y dumps
+*.log
+*.bak
+
+# Archivos temporales y de caché
+*.swp
+*.tmp
+*.temp

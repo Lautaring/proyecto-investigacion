@@ -1,8 +1,8 @@
 Ruta: /home/lautaro/Documentos/Repositorios/proyecto-investigacion/src/main/resources/figure_3.png
-Nombre del Factor: 4
-Diversidad: 4.0
-Masa Crítica: 4.0
-Orden: 4.0
-Calidad: 4.0
-Coeficiente de Crecimiento: 4.0
-Coeficiente de Mantenimiento: 4.0
+Nombre del Factor: 1
+Diversidad: 1.0
+Masa Crítica: 1.0
+Orden: 1.0
+Calidad: 1.0
+Coeficiente de Crecimiento: 1.0
+Coeficiente de Mantenimiento: 1.0

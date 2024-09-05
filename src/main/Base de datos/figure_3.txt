@@ -1,8 +1,0 @@
-Ruta: C:\Users\Usuario\Documents\Github\proyecto-investigacion\src\main\resources\figure_3.png
-Nombre del Factor: 231
-Diversidad: 3.0
-Masa Crítica: 23.0
-Orden: 12.0
-Calidad: 213.0
-Coeficiente de Crecimiento: 213.0
-Coeficiente de Mantenimiento: 123.0

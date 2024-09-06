@@ -1,0 +1,8 @@
+Imagen: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Repositorios/Proyecto de Investigación/proyecto-investigacion/src/main/resources/figure_3.png
+Nombre: 5
+Diversidad: 5.0
+Masa Crítica: 5.0
+Orden: 5.0
+Calidad: 5.0
+Coeficiente de Crecimiento: 5.0
+Coeficiente de Mantenimiento: 5.0

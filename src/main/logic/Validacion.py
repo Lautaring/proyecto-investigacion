@@ -1,44 +1,34 @@
 from tkinter import messagebox
 
-#Esta clase estamos viendo si dejarla o cambiarla
-
 class Validacion:
     
-    def validar_campos(self):
+    def validar_campos(self, nombre, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento):
         """Valida que todos los campos del formulario estén llenos y que los valores sean correctos."""
-        # Obtener los valores de los campos
-        nombre = self.factor_name_entry.get().strip()
-        diversidad = self.diversity_entry.get().strip()
-        masa_critica = self.masa_critica_entry.get().strip()
-        orden = self.orden_entry.get().strip()
-        calidad = self.calidad_entry.get().strip()
-        coef_crecimiento = self.coef_crecimiento_entry.get().strip()
-        coef_mantenimiento = self.coef_mantenimiento_entry.get().strip()
-
-        # Verificar que ninguno de los campos esté vacío
-        if not nombre:
+        
+        # Verificación de campos vacíos
+        if not nombre.strip():
             messagebox.showerror("Error", "El nombre del factor no puede estar vacío.")
             return False
-        if not diversidad:
+        if not diversidad.strip():
             messagebox.showerror("Error", "La diversidad no puede estar vacía.")
             return False
-        if not masa_critica:
+        if not masa_critica.strip():
             messagebox.showerror("Error", "La masa crítica no puede estar vacía.")
             return False
-        if not orden:
+        if not orden.strip():
             messagebox.showerror("Error", "El orden no puede estar vacío.")
             return False
-        if not calidad:
+        if not calidad.strip():
             messagebox.showerror("Error", "La calidad no puede estar vacía.")
             return False
-        if not coef_crecimiento:
+        if not coef_crecimiento.strip():
             messagebox.showerror("Error", "El coeficiente de crecimiento no puede estar vacío.")
             return False
-        if not coef_mantenimiento:
+        if not coef_mantenimiento.strip():
             messagebox.showerror("Error", "El coeficiente de mantenimiento no puede estar vacío.")
             return False
 
-        # Verificar que los valores numéricos sean válidos
+        # Verificación de que los valores numéricos sean válidos
         try:
             float(diversidad)
             float(masa_critica)

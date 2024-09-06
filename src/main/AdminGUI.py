@@ -152,8 +152,16 @@ class AdminGUI:
         tipo_factor_options = ["Gestor", "Transmisor", "Productor"]
         self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
         self.tipo_factor_menu.grid(row=9, column=1)
+        
+        # Permeabilidad
+        tk.Label(self.form_frame, text="Tipo de Permeabilidad: ").grid(row=10, column=0)
+        self.tipo_factor_var = tk.StringVar(self.form_frame)
+        self.tipo_factor_var.set("Cerrado")  # Valor por defecto
+        tipo_factor_options = ["Cerrado", "Abierto"]
+        self.tipo_factor_menu = tk.OptionMenu(self.form_frame, self.tipo_factor_var, *tipo_factor_options)
+        self.tipo_factor_menu.grid(row=10, column=1)
 
-        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=10, columnspan=2)
+        tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=11, columnspan=2)
 
     def guardar_factor(self):
         if not self.validar_campos():
@@ -192,14 +200,7 @@ class AdminGUI:
         with open(file_path, "w") as file:
             file.write(f"Ruta: {img_path}\n")
             file.write(f"Nombre del Factor: {factor.nombre}\n")
-            file.write(f"Diversidad: {factor.diversidad}\n")
-            file.write(f"Masa Crítica: {factor.masa_critica}\n")
-            file.write(f"Orden: {factor.orden}\n")
-            file.write(f"Calidad: {factor.calidad}\n")
-            file.write(f"Coeficiente de Crecimiento: {factor.coeficiente_crecimiento}\n")
-            file.write(f"Coeficiente de Mantenimiento: {factor.coeficiente_mantenimiento}\n")
-
-    def cargar_siguiente_imagen(self):
+            file.write(f"Diversidad: {factor.diversidad}\n""Error", "La diversidad no puede estar vacía.")
         current_index = len(self.factors_dict)
         if current_index < len(self.image_paths):
             next_img_path = self.image_paths[current_index]

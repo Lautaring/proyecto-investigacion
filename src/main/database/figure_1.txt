@@ -1,8 +1,8 @@
-Imagen: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Repositorios/Proyecto de Investigación/proyecto-investigacion/src/main/resources/figure_1.png
-Nombre: 4
-Diversidad: 4.0
-Masa Crítica: 4.0
-Orden: 4.0
-Calidad: 4.0
-Coeficiente de Crecimiento: 4.0
-Coeficiente de Mantenimiento: 4.0
+Imagen: c:\Users\Leo\OneDrive\Escritorio\Proyecto de Investigacion\proyecto-investigacion\src\main\resources\figure_1.png
+Nombre: 1
+Diversidad: 1.0
+Masa Cr�tica: 1.0
+Orden: 1.0
+Calidad: 11.0
+Coeficiente de Crecimiento: 1.0
+Coeficiente de Mantenimiento: 1.0

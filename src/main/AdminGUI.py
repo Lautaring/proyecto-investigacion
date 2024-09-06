@@ -65,21 +65,22 @@ class AdminGUI:
 
     def cargar_imagen(self):
         try:
-            # Verificar que aún hay imágenes por cargar
-            if self.indice_imagen_actual < len(self.image_paths):
-                img_path = self.image_paths[self.indice_imagen_actual]
-                self.last_img_path = img_path
-                self.ruta_imagen_actual = img_path 
-                self.img = cv2.imread(img_path)
-                if self.img is not None:
-                    self.mostrar_imagen(self.indice_imagen_actual)
-                    self.crear_formulario()
-                else:
-                    print(f"No se pudo cargar la imagen {img_path}")
+            print("image_paths: ", self.image_paths)
+            self.indice_imagen_actual = 0 
+            img_path = self.image_paths[self.indice_imagen_actual]
+            self.last_img_path = img_path
+            self.ruta_imagen_actual = img_path 
+            self.img = cv2.imread(img_path)
+            if self.img is not None:
+                self.mostrar_imagen(self.indice_imagen_actual)  
+                self.crear_formulario()
             else:
-                self.cargar_tablero()
+                print(f"No se pudo cargar la imagen {img_path}")
+        except NameError:
+            print("Error: Variable no definida")
         except Exception as e:
             print(f"Error al cargar la imagen: {e}")
+
             
 
     def mostrar_imagen(self, indice):
@@ -93,9 +94,19 @@ class AdminGUI:
         img_pil = Image.fromarray(img_rgb)
         img_tk = ImageTk.PhotoImage(image=img_pil)
 
-        self.canvas.delete("all")
-        self.id_imagen_actual = self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
-        self.canvas.image = img_tk
+        if hasattr(self, 'canvas_blank_board'): 
+            self.canvas_blank_board.delete("all")
+            self.id_imagen_actual = self.canvas_blank_board.create_image(0, 0, anchor=tk.NW, image=img_tk)
+            self.canvas_blank_board.image = img_tk
+
+            def on_drag(event):
+                self.canvas_blank_board.coords(self.id_imagen_actual, event.x, event.y)
+
+            self.canvas_blank_board.tag_bind(self.id_imagen_actual, "<B1-Motion>", on_drag)
+        else:
+            self.canvas.delete("all")
+            self.id_imagen_actual = self.canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+            self.canvas.image = img_tk 
 
     def crear_formulario(self):
         # Menú desplegable para el tipo de factor
@@ -186,11 +197,8 @@ class AdminGUI:
                 coef_mantenimiento = float(coef_mantenimiento)
 
                 # Crear el objeto Factor y guardarlo
-                factor = Factor(
-                    nombre, diversidad, masa_critica, orden, calidad,
-                    Permeabilidad(self.tipo_permeabilidad_var.get(), 1),
-                    coef_crecimiento, coef_mantenimiento, Rol(self.tipo_rol_var.get(), "Descripción")
-                )
+                factor = Factor(nombre, diversidad, masa_critica, orden, calidad, Permeabilidad(self.tipo_permeabilidad_var.get(), 1),
+                                coef_crecimiento, coef_mantenimiento, Rol(self.tipo_rol_var.get(), "Descripción"))
                 self.factors_dict[self.last_img_path] = factor
                 self.guardar_en_archivo(self.last_img_path, factor)
 
@@ -236,8 +244,20 @@ class AdminGUI:
         self.coef_mantenimiento_entry.delete(0, tk.END)
 
     def cargar_siguiente_imagen(self):
-        self.indice_imagen_actual += 1
-        self.cargar_imagen()
+        current_index = len(self.factors_dict)
+        if current_index < len(self.image_paths):
+            next_img_path = self.image_paths[current_index]
+            self.last_img_path = next_img_path
+            self.ruta_imagen_actual = next_img_path 
+            self.img = cv2.imread(next_img_path)
+            if self.img is not None:
+                self.mostrar_imagen(current_index)
+                self.crear_formulario()
+            else:
+                print(f"No se pudo cargar la imagen {next_img_path}")
+        else:
+            print("No hay más imágenes para cargar.")
+            self.mostrar_pizarra()
     
     def clear_canvas(self):
         self.canvas.delete("all")

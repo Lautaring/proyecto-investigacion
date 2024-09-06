@@ -1,0 +1,1 @@
+#Esta clase se va a encargar de los id y de organizar los datos(guardado y manipulacion) NADA MASSSSSSS!!!

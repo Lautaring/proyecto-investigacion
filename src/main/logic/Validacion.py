@@ -1,5 +1,6 @@
 from tkinter import messagebox
 
+#Esta clase estamos viendo si dejarla o cambiarla
 
 class Validacion:
     

@@ -5,6 +5,7 @@ from shapely.geometry import box, Polygon
 # Importar la clase PaintApp de la segunda ventana
 from logic.Ventana_Dibujo import PaintApp  # Asegúrate de que este archivo esté en el mismo directorio
 
+
 # Clase para manejar la aplicación
 class ImageCanvasApp:
     def __init__(self, root):

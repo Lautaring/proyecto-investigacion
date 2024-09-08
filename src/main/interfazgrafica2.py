@@ -4,6 +4,10 @@ from PIL import Image, ImageTk
 from shapely.geometry import box, Polygon
 # Importar la clase PaintApp de la segunda ventana
 from logic.Ventana_Dibujo import PaintApp  # Asegúrate de que este archivo esté en el mismo directorio
+from logic.Validacion import Validacion
+from logic.Factor import Factor
+import glob
+import os
 
 
 # Clase para manejar la aplicación
@@ -45,6 +49,23 @@ class ImageCanvasApp:
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
         self.canvas.bind("<B1-Motion>", self.on_drag)
+        
+        
+        self.last_img_path = None
+
+        # Almacenar referencias de imágenes y sus IDs
+        self.image_refs = []
+        self.image_ids = []
+        
+        
+        # Diccionario para almacenar factores asociados a las imágenes
+        self.factors_dict = {}
+        self.image_paths = self.obtener_rutas_imagen()
+        self.ruta_imagen_actual = None
+        self.indice_imagen_actual = 0  # Inicialización correcta del índice
+        
+        # Creo una instancia de la clase validación para luego usarla para validar datos
+        self.instancia_validacion = Validacion()
 
 
     def crear_formulario(self):
@@ -118,7 +139,7 @@ class ImageCanvasApp:
         self.paint_window = Toplevel(self.root)
         self.paint_window.title("Paint Application")
         self.paint_window.geometry("800x600")
-        self.paint_window.attributes("-topmost", True)
+        #self.paint_window.attributes("-topmost", True)
         # Crear una instancia de PaintApp y pasar self (referencia a ImageCanvasApp)
         PaintApp(self.paint_window, self)
 
@@ -279,7 +300,7 @@ class ImageCanvasApp:
         # Aquí puedes implementar la lógica para guardar los datos del formulario
         tipo_factor = self.tipo_factor_var.get()
         componente = self.componente_var.get()
-        factor_name = self.factor_name_entry.get()
+        nombre_factor = self.factor_name_entry.get()
         diversidad = self.diversity_entry.get()
         masa_critica = self.masa_critica_entry.get()
         orden = self.orden_entry.get()
@@ -290,15 +311,18 @@ class ImageCanvasApp:
         tipo_permeabilidad = self.tipo_permeabilidad_var.get()
 
         # Verificar si los campos están vacíos
-        if not all([factor_name, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento]):
-            messagebox.showerror("Error", "Todos los campos deben ser completados")
-            return
+        if self.instancia_validacion.validar_campos(nombre_factor, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento):
+            #Si la verificación sale bien debo crear un objeto de la clase Factor y guardarlo en un archivo
+            factor = Factor(nombre_factor, diversidad, masa_critica, orden, calidad, tipo_permeabilidad, coef_crecimiento, coef_mantenimiento, tipo_rol)
+            self.factors_dict[self.last_img_path] = factor
+            self.guardar_en_archivo(factor)
+            
 
         # Aquí podrías agregar lógica para guardar los datos, por ejemplo en un archivo o base de datos
-        print("Datos guardados:")
+        """print("Datos guardados:")
         print(f"Tipo de factor: {tipo_factor}")
         print(f"Componente del Factor: {componente}")
-        print(f"Nombre del Factor: {factor_name}")
+        print(f"Nombre del Factor: {nombre_factor}")
         print(f"Diversidad: {diversidad}")
         print(f"Masa Crítica: {masa_critica}")
         print(f"Orden: {orden}")
@@ -306,7 +330,41 @@ class ImageCanvasApp:
         print(f"Coeficiente de Crecimiento: {coef_crecimiento}")
         print(f"Coeficiente de Mantenimiento: {coef_mantenimiento}")
         print(f"Tipo de Rol: {tipo_rol}")
-        print(f"Tipo de Permeabilidad: {tipo_permeabilidad}")
+        print(f"Tipo de Permeabilidad: {tipo_permeabilidad}")"""
+        
+    def guardar_en_archivo(self, img_path, factor):
+        # Directorio para guardar archivos
+        base_dir = os.path.dirname(os.path.abspath(__file__)) 
+        database_dir = os.path.join(base_dir, 'datosbase') 
+
+        if not os.path.exists(database_dir):
+            os.makedirs(database_dir)
+
+        file_name = os.path.splitext(os.path.basename(img_path))[0] + ".txt"
+        file_path = os.path.join(database_dir, file_name)
+        
+        with open(file_path, "w") as file:
+            #file.write(f"Imagen: {img_path}\n")
+            #file.write(f"Tipo de factor: {factor.tipo}\n")
+            #file.write(f"Componente: {factor.componente}\n")
+            file.write(f"Nombre: {factor.nombre}\n")
+            file.write(f"Diversidad: {factor.diversidad}\n")
+            file.write(f"Masa Crítica: {factor.masa_critica}\n")
+            file.write(f"Orden: {factor.orden}\n")
+            file.write(f"Calidad: {factor.calidad}\n")
+            file.write(f"Coeficiente de Crecimiento: {factor.coef_crecimiento}\n")
+            file.write(f"Coeficiente de Mantenimiento: {factor.coef_mantenimiento}\n")  
+            file.write(f"Tipo de Rol: {factor.rol}\n") 
+            #file.write(f"Tipo de Permeabilidad: {factor.tipo_permeabilidad}\n")  
+
+    def obtener_rutas_imagen(self):
+        # Obtener rutas de imágenes en el directorio "resources"
+        base_dir = os.path.dirname(os.path.abspath(__file__)) 
+        resources_dir = os.path.join(base_dir, 'resources') 
+        image_files = glob.glob(os.path.join(resources_dir, 'figure*.png'))
+
+        image_files.sort()
+        return image_files
 
 
 # Inicializar la aplicación

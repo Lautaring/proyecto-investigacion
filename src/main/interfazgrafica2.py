@@ -118,24 +118,18 @@ class ImageCanvasApp:
         self.paint_window = Toplevel(self.root)
         self.paint_window.title("Paint Application")
         self.paint_window.geometry("800x600")
-        self.paint_window.attributes("-topmost", True)
+        #self.paint_window.attributes("-topmost", True)
         # Crear una instancia de PaintApp y pasar self (referencia a ImageCanvasApp)
         PaintApp(self.paint_window, self)
 
 
     # Método para cargar la imagen desde PaintApp en el lienzo principal
     def set_canvas_image(self, image):
-        # Convertir la imagen capturada a un formato compatible con Tkinter
-        self.paint_image = ImageTk.PhotoImage(image)
-
-        # Limpiar el lienzo antes de dibujar la nueva imagen
-        #self.canvas.delete("all")
-
-        # Dibujar la imagen en el lienzo principal
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.paint_image)
-
-        # Mantener una referencia de la imagen para evitar que se elimine
-        self.canvas.image = self.paint_image
+        pil_image = image
+        #pil_image = pil_image.resize((100, 100))
+        tk_image = ImageTk.PhotoImage(pil_image)
+        item_id = self.canvas.create_image(50, 50, image=tk_image, anchor=tk.NW)
+        self.images.append({"id": item_id, "image": tk_image, "bbox": (50, 50, 150, 150)})
 
 
     # Método para cargar una imagen desde el sistema de archivos
@@ -147,7 +141,6 @@ class ImageCanvasApp:
             tk_image = ImageTk.PhotoImage(pil_image)
             item_id = self.canvas.create_image(50, 50, image=tk_image, anchor=tk.NW)
             self.images.append({"id": item_id, "image": tk_image, "bbox": (50, 50, 150, 150)})
-
 
 
     # Métodos de arrastre de imágenes

@@ -53,7 +53,6 @@ class PaintApp:
         shape_menu.menu.add_command(label="Rectangle", command=lambda: self.set_draw_tool('rectangle'))
         shape_menu.menu.add_command(label="Oval", command=lambda: self.set_draw_tool('oval'))
         shape_menu.menu.add_command(label="Line", command=lambda: self.set_draw_tool('line'))
-        shape_menu.menu.add_command(label="Freeform", command=lambda: self.set_draw_tool('pencil'))
         shape_menu.menu.add_command(label="Polyline", command=lambda: self.set_draw_tool('polyline'))
         shape_menu.menu.add_command(label="Select", command=lambda: self.set_draw_tool('select'))
 
@@ -121,13 +120,7 @@ class PaintApp:
             self.select_start = (event.x, event.y)
 
     def on_mouse_drag(self, event):
-        if self.draw_tool == 'pencil':
-            self.canvas.create_line((self.start_x, self.start_y, event.x, event.y),
-                                    fill=self.color, width=self.brush_size)
-            if self.image:
-                self.draw.line((self.start_x, self.start_y, event.x, event.y), fill=self.color, width=self.brush_size)
-            self.start_x, self.start_y = event.x, event.y
-        elif self.draw_tool in ['rectangle', 'oval', 'line']:
+        if self.draw_tool in ['rectangle', 'oval', 'line']:
             self.canvas.delete("current_shape")
             if self.draw_tool == 'rectangle':
                 self.canvas.create_rectangle(self.start_x, self.start_y, event.x, event.y, outline=self.color, tags="current_shape")
@@ -180,25 +173,50 @@ class PaintApp:
 
 
     def save_and_close(self):
-        # Crear una nueva imagen en memoria con el tamaño del lienzo
-        canvas_width = self.canvas.winfo_width()
-        canvas_height = self.canvas.winfo_height()
+        # Definir un margen para evitar el recorte de formas
+        margin = 1  # Puedes ajustar este valor según sea necesario
         
-        # Crear una imagen en blanco con transparencia
-        image = Image.new("RGBA", (canvas_width, canvas_height), (255, 255, 255, 0))
+        # Obtener las coordenadas mínimas y máximas de todas las formas para ajustar el tamaño de la imagen
+        min_x, min_y, max_x, max_y = float('inf'), float('inf'), float('-inf'), float('-inf')
+
+        for shape in self.shapes:
+            coords = self.canvas.coords(shape)
+            min_x = min(min_x, *coords[::2])  # Comparar sólo coordenadas x
+            min_y = min(min_y, *coords[1::2])  # Comparar sólo coordenadas y
+            max_x = max(max_x, *coords[::2])  # Comparar sólo coordenadas x
+            max_y = max(max_y, *coords[1::2])  # Comparar sólo coordenadas y
+
+        # Asegurarse de que haya algo dibujado
+        if min_x == float('inf') or min_y == float('inf'):
+            return  # No hay formas dibujadas, no hay nada que guardar
+
+        # Añadir márgenes a los límites para evitar el recorte de las formas
+        min_x -= margin
+        min_y -= margin
+        max_x += margin
+        max_y += margin
+
+        # Calcular el tamaño de la imagen a partir de los límites con el margen añadido
+        width = int(max_x - min_x)
+        height = int(max_y - min_y)
+
+        # Crear una nueva imagen con el tamaño exacto para contener todas las formas
+        image = Image.new("RGBA", (width, height), (255, 255, 255, 0))  # Fondo blanco con transparencia
         draw = ImageDraw.Draw(image)
 
-        # Recorrer las formas dibujadas y volcarlas a la imagen
+        # Recorrer las formas dibujadas y volcarlas a la imagen, ajustando las coordenadas relativas
         for shape in self.shapes:
             coords = self.canvas.coords(shape)
             shape_type = self.canvas.type(shape)
-            
+            # Ajustar las coordenadas para que sean relativas al nuevo tamaño
+            adjusted_coords = [(x - min_x, y - min_y) for x, y in zip(coords[::2], coords[1::2])]
+
             if shape_type == 'rectangle':
-                draw.rectangle(coords, outline=self.color)
+                draw.rectangle(adjusted_coords, outline=self.color)
             elif shape_type == 'oval':
-                draw.ellipse(coords, outline=self.color)
+                draw.ellipse(adjusted_coords, outline=self.color)
             elif shape_type == 'line':
-                draw.line(coords, fill=self.color, width=self.brush_size)
+                draw.line(adjusted_coords, fill=self.color, width=self.brush_size)
 
         # Pasar la imagen a la aplicación principal (ImageCanvasApp)
         if self.parent_app:
@@ -206,3 +224,4 @@ class PaintApp:
 
         # Cerrar la ventana de PaintApp
         self.root.destroy()
+

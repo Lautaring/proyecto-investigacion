@@ -1,0 +1,12 @@
+Imagen: C:/Users/Leo/OneDrive/Escritorio/Proyecto de Investigacion/proyecto-investigacion/micelaneos/calchaqui3.png
+Tipo de factor: Fisico
+Componente: Componente 1
+Nombre: Calchaqui
+Diversidad: 6746767567565
+Masa Crítica: 675
+Orden: 675
+Calidad: 675
+Coeficiente de Crecimiento: 656
+Coeficiente de Mantenimiento: 8568
+Tipo de Rol: Gestor
+Tipo de Permeabilidad: Cerrado

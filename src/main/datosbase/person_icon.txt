@@ -1,0 +1,12 @@
+Imagen: C:/Users/Leo/OneDrive/Escritorio/Proyecto de Investigacion/proyecto-investigacion/micelaneos/person_icon.png
+Tipo de factor: Simbolico
+Componente: Componente 7
+Nombre: Milei
+Diversidad: 854
+Masa Crítica: 65
+Orden: 5
+Calidad: 5
+Coeficiente de Crecimiento: 77
+Coeficiente de Mantenimiento: 88
+Tipo de Rol: Transmisor
+Tipo de Permeabilidad: Abierto

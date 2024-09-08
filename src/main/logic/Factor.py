@@ -6,8 +6,10 @@ from tkinter import messagebox
 class Factor:
     #permeabilidad_1 : Permeabilidad luego modificar para pasar la permeabilidad como clase
     #rol_1 : Rol luego modificar para pasar el rol como clase
-    def __init__(self, nombre, diversidad, masa_critica, orden, calidad, tipo_permeabilidad, coef_crecimiento, coef_mantenimiento, tipo_rol):
+    def __init__(self, nombre, tipo, componente, diversidad, masa_critica, orden, calidad, tipo_permeabilidad, coef_crecimiento, coef_mantenimiento, tipo_rol):
         self.nombre = nombre
+        self.tipo = tipo
+        self.componente = componente
         self.diversidad = diversidad
         self.masa_critica = masa_critica
         self.orden = orden

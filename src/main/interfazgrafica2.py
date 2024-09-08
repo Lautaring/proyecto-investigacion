@@ -333,6 +333,7 @@ class ImageCanvasApp:
     # Método para cargar una imagen desde el sistema de archivos
     def load_image(self):
         image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.png")])
+        self.last_img_path = image_path
         if image_path:
             pil_image = Image.open(image_path)
             pil_image = pil_image.resize((100, 100))
@@ -465,6 +466,16 @@ class ImageCanvasApp:
             self.canvas.create_polygon(flattened_points, outline=color, fill='', tags="intersection")
 
 
+    def limpiar_formulario(self):
+        self.factor_name_entry.delete(0, tk.END)
+        self.diversity_entry.delete(0, tk.END)
+        self.masa_critica_entry.delete(0, tk.END)
+        self.orden_entry.delete(0, tk.END)
+        self.calidad_entry.delete(0, tk.END)
+        self.coef_crecimiento_entry.delete(0, tk.END)
+        self.coef_mantenimiento_entry.delete(0, tk.END)
+
+        
     # Método para guardar los datos del formulario
     def guardar_factor(self):
         # Aquí puedes implementar la lógica para guardar los datos del formulario
@@ -483,24 +494,12 @@ class ImageCanvasApp:
         # Verificar si los campos están vacíos
         if self.instancia_validacion.validar_campos(nombre_factor, diversidad, masa_critica, orden, calidad, coef_crecimiento, coef_mantenimiento):
             #Si la verificación sale bien debo crear un objeto de la clase Factor y guardarlo en un archivo
-            factor = Factor(nombre_factor, diversidad, masa_critica, orden, calidad, tipo_permeabilidad, coef_crecimiento, coef_mantenimiento, tipo_rol)
+            factor = Factor(nombre_factor, tipo_factor, componente, diversidad, masa_critica, orden, calidad, tipo_permeabilidad, coef_crecimiento, coef_mantenimiento, tipo_rol)
             self.factors_dict[self.last_img_path] = factor
-            self.guardar_en_archivo(factor)
-            
+            self.guardar_en_archivo(self.last_img_path,factor)
+        
+        self.limpiar_formulario();
 
-        # Aquí podrías agregar lógica para guardar los datos, por ejemplo en un archivo o base de datos
-        """print("Datos guardados:")
-        print(f"Tipo de factor: {tipo_factor}")
-        print(f"Componente del Factor: {componente}")
-        print(f"Nombre del Factor: {nombre_factor}")
-        print(f"Diversidad: {diversidad}")
-        print(f"Masa Crítica: {masa_critica}")
-        print(f"Orden: {orden}")
-        print(f"Calidad: {calidad}")
-        print(f"Coeficiente de Crecimiento: {coef_crecimiento}")
-        print(f"Coeficiente de Mantenimiento: {coef_mantenimiento}")
-        print(f"Tipo de Rol: {tipo_rol}")
-        print(f"Tipo de Permeabilidad: {tipo_permeabilidad}")"""
         
     def guardar_en_archivo(self, img_path, factor):
         # Directorio para guardar archivos
@@ -514,9 +513,9 @@ class ImageCanvasApp:
         file_path = os.path.join(database_dir, file_name)
         
         with open(file_path, "w") as file:
-            #file.write(f"Imagen: {img_path}\n")
-            #file.write(f"Tipo de factor: {factor.tipo}\n")
-            #file.write(f"Componente: {factor.componente}\n")
+            file.write(f"Imagen: {img_path}\n")
+            file.write(f"Tipo de factor: {factor.tipo}\n")
+            file.write(f"Componente: {factor.componente}\n")
             file.write(f"Nombre: {factor.nombre}\n")
             file.write(f"Diversidad: {factor.diversidad}\n")
             file.write(f"Masa Crítica: {factor.masa_critica}\n")
@@ -524,8 +523,8 @@ class ImageCanvasApp:
             file.write(f"Calidad: {factor.calidad}\n")
             file.write(f"Coeficiente de Crecimiento: {factor.coef_crecimiento}\n")
             file.write(f"Coeficiente de Mantenimiento: {factor.coef_mantenimiento}\n")  
-            file.write(f"Tipo de Rol: {factor.rol}\n") 
-            #file.write(f"Tipo de Permeabilidad: {factor.tipo_permeabilidad}\n")  
+            file.write(f"Tipo de Rol: {factor.tipo_rol}\n") 
+            file.write(f"Tipo de Permeabilidad: {factor.tipo_permeabilidad}\n")  
 
     def obtener_rutas_imagen(self):
         # Obtener rutas de imágenes en el directorio "resources"

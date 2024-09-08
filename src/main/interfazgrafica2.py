@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, colorchooser, messagebox, Toplevel
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 from shapely.geometry import box, Polygon
 # Importar la clase PaintApp de la segunda ventana
 from logic.Ventana_Dibujo import PaintApp  # Asegúrate de que este archivo esté en el mismo directorio

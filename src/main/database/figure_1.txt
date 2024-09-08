@@ -1,8 +1,8 @@
-Imagen: c:\Users\Leo\OneDrive\Escritorio\Proyecto de Investigacion\proyecto-investigacion\src\main\resources\figure_1.png
-Nombre: 1
-Diversidad: 1.0
-Masa Cr�tica: 1.0
-Orden: 1.0
-Calidad: 11.0
-Coeficiente de Crecimiento: 1.0
-Coeficiente de Mantenimiento: 1.0
+Imagen: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Repositorios/Proyecto de Investigación/proyecto-investigacion/src/main/resources/figure_1.png
+Nombre: fas
+Diversidad: 2.0
+Masa Crítica: 1.0
+Orden: 3.0
+Calidad: 3.0
+Coeficiente de Crecimiento: 3.0
+Coeficiente de Mantenimiento: 3.0

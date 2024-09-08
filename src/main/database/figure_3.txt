@@ -1,8 +1,8 @@
-Imagen: c:\Users\Leo\OneDrive\Escritorio\Proyecto de Investigacion\proyecto-investigacion\src\main\resources\figure_3.png
-Nombre: 1
-Diversidad: 1.0
-Masa Cr�tica: 1.0
-Orden: 1.0
-Calidad: 1.0
-Coeficiente de Crecimiento: 1.0
-Coeficiente de Mantenimiento: 1.0
+Imagen: /home/lautaropc/MEGA/MEGAsyncUploads/Ingenieria en Informatica/Repositorios/Proyecto de Investigación/proyecto-investigacion/src/main/resources/figure_3.png
+Nombre: T6
+Diversidad: 5.0
+Masa Crítica: 5.0
+Orden: 5.0
+Calidad: 5.0
+Coeficiente de Crecimiento: 5.0
+Coeficiente de Mantenimiento: 5.0

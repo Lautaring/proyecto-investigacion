@@ -53,7 +53,6 @@ class PaintApp:
         shape_menu.menu.add_command(label="Rectangle", command=lambda: self.set_draw_tool('rectangle'))
         shape_menu.menu.add_command(label="Oval", command=lambda: self.set_draw_tool('oval'))
         shape_menu.menu.add_command(label="Line", command=lambda: self.set_draw_tool('line'))
-        shape_menu.menu.add_command(label="Freeform", command=lambda: self.set_draw_tool('pencil'))
         shape_menu.menu.add_command(label="Polyline", command=lambda: self.set_draw_tool('polyline'))
         shape_menu.menu.add_command(label="Select", command=lambda: self.set_draw_tool('select'))
 
@@ -121,13 +120,7 @@ class PaintApp:
             self.select_start = (event.x, event.y)
 
     def on_mouse_drag(self, event):
-        if self.draw_tool == 'pencil':
-            self.canvas.create_line((self.start_x, self.start_y, event.x, event.y),
-                                    fill=self.color, width=self.brush_size)
-            if self.image:
-                self.draw.line((self.start_x, self.start_y, event.x, event.y), fill=self.color, width=self.brush_size)
-            self.start_x, self.start_y = event.x, event.y
-        elif self.draw_tool in ['rectangle', 'oval', 'line']:
+        if self.draw_tool in ['rectangle', 'oval', 'line']:
             self.canvas.delete("current_shape")
             if self.draw_tool == 'rectangle':
                 self.canvas.create_rectangle(self.start_x, self.start_y, event.x, event.y, outline=self.color, tags="current_shape")

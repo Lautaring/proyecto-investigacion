@@ -1,7 +1,9 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, Toplevel
 from PIL import Image, ImageTk
 from shapely.geometry import box, Polygon
+# Importar la clase PaintApp de la segunda ventana
+from logic.Ventana_Dibujo import PaintApp  # Asegúrate de que este archivo esté en el mismo directorio
 
 # Clase para manejar la aplicación
 class ImageCanvasApp:
@@ -31,6 +33,10 @@ class ImageCanvasApp:
         load_button = tk.Button(self.form_frame, text="Cargar Imagen", command=self.load_image)
         load_button.grid(row=12, columnspan=2)
 
+        # Nuevo botón para abrir la segunda ventana
+        open_paint_button = tk.Button(self.form_frame, text="Abrir Paint App", command=self.open_paint_window)
+        open_paint_button.grid(row=13, columnspan=2)
+
         # Variables para arrastrar
         self.drag_data = {"x": 0, "y": 0, "item": None}
 
@@ -38,6 +44,7 @@ class ImageCanvasApp:
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
         self.canvas.bind("<B1-Motion>", self.on_drag)
+
 
     def crear_formulario(self):
         # Menú desplegable para el tipo de factor
@@ -103,19 +110,46 @@ class ImageCanvasApp:
 
         tk.Button(self.form_frame, text="Guardar Factor", command=self.guardar_factor).grid(row=11, columnspan=2)
 
+
+    # Método para abrir la ventana de pintura
+    def open_paint_window(self):
+        # Crear la ventana de PaintApp y pasar una referencia a la clase principal
+        self.paint_window = Toplevel(self.root)
+        self.paint_window.title("Paint Application")
+        self.paint_window.geometry("800x600")
+        self.paint_window.attributes("-topmost", True)
+        # Crear una instancia de PaintApp y pasar self (referencia a ImageCanvasApp)
+        PaintApp(self.paint_window, self)
+
+
+    # Método para cargar la imagen desde PaintApp en el lienzo principal
+    def set_canvas_image(self, image):
+        # Convertir la imagen capturada a un formato compatible con Tkinter
+        self.paint_image = ImageTk.PhotoImage(image)
+
+        # Limpiar el lienzo antes de dibujar la nueva imagen
+        #self.canvas.delete("all")
+
+        # Dibujar la imagen en el lienzo principal
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.paint_image)
+
+        # Mantener una referencia de la imagen para evitar que se elimine
+        self.canvas.image = self.paint_image
+
+
+    # Método para cargar una imagen desde el sistema de archivos
     def load_image(self):
-        # Abrir cuadro de diálogo para seleccionar una imagen
         image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.png")])
         if image_path:
-            # Cargar la imagen y convertirla a un formato compatible con Tkinter
             pil_image = Image.open(image_path)
-            pil_image = pil_image.resize((100, 100))  # Redimensionar la imagen
+            pil_image = pil_image.resize((100, 100))
             tk_image = ImageTk.PhotoImage(pil_image)
-
-            # Añadir la imagen al lienzo
             item_id = self.canvas.create_image(50, 50, image=tk_image, anchor=tk.NW)
             self.images.append({"id": item_id, "image": tk_image, "bbox": (50, 50, 150, 150)})
 
+
+
+    # Métodos de arrastre de imágenes
     def on_press(self, event):
         # Detectar si se hace clic en una imagen
         item = self.canvas.find_closest(event.x, event.y)
@@ -124,12 +158,14 @@ class ImageCanvasApp:
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
 
+
     def on_release(self, event):
         # Al soltar, reiniciar los datos de arrastre
         self.drag_data["item"] = None
         self.drag_data["x"] = 0
         self.drag_data["y"] = 0
         self.update_bbox()  # Actualizar las posiciones de los bounding boxes
+
 
     def on_drag(self, event):
         # Durante el arrastre, mover la imagen
@@ -142,6 +178,8 @@ class ImageCanvasApp:
             self.drag_data["x"] = event.x
             self.drag_data["y"] = event.y
 
+
+    # Método para actualizar las coordenadas de las imágenes
     def update_bbox(self):
         # Actualiza los "bounding boxes" (áreas) de las imágenes después de que sean movidas
         for img in self.images:
@@ -149,6 +187,8 @@ class ImageCanvasApp:
             img["bbox"] = bbox
         self.check_intersections()
 
+
+    # Método para verificar intersecciones entre imágenes
     def check_intersections(self):
         # Eliminar cualquier intersección previa dibujada
         self.canvas.delete("intersection")
@@ -193,7 +233,7 @@ class ImageCanvasApp:
                         intersection = rect1.intersection(rect2).intersection(rect3)
                         if not intersection.is_empty:
                             all_intersections.append((i, j, k, intersection))
-                            self.draw_intersection(intersection, color="yellow")  # Intersecciones de tríos
+                            self.draw_intersection(intersection, color="green")  # Intersecciones de tríos
 
         if num_images >= 4:
             # Intersección entre cuatro imágenes
@@ -212,7 +252,7 @@ class ImageCanvasApp:
             intersection = rect1.intersection(rect2).intersection(rect3).intersection(rect4)
             if not intersection.is_empty:
                 all_intersections.append((0, 1, 2, 3, intersection))
-                self.draw_intersection(intersection, color="black")  # Intersección de los cuatro
+                self.draw_intersection(intersection, color="red")  # Intersección de los cuatro
 
         # Imprimir las intersecciones y sus imágenes asociadas
         for inter in all_intersections:
@@ -221,6 +261,8 @@ class ImageCanvasApp:
             print(f"Intersección entre imágenes: {indices}")
             print(f"Detalles de la intersección: {intersection}")
 
+
+    # Método para dibujar las intersecciones
     def draw_intersection(self, intersection, color):
         # Dibujar la intersección en el lienzo
         if isinstance(intersection, Polygon):
@@ -230,6 +272,8 @@ class ImageCanvasApp:
             flattened_points = [coord for point in points for coord in point]
             self.canvas.create_polygon(flattened_points, outline=color, fill='', tags="intersection")
 
+
+    # Método para guardar los datos del formulario
     def guardar_factor(self):
         # Aquí puedes implementar la lógica para guardar los datos del formulario
         tipo_factor = self.tipo_factor_var.get()
@@ -263,7 +307,16 @@ class ImageCanvasApp:
         print(f"Tipo de Rol: {tipo_rol}")
         print(f"Tipo de Permeabilidad: {tipo_permeabilidad}")
 
+
 # Inicializar la aplicación
 root = tk.Tk()
 app = ImageCanvasApp(root)
 root.mainloop()
+
+
+
+"""Ver esta opcion"""
+# def abrir_ventana_paint(self):
+#     Crear una nueva ventana (Toplevel)
+#     new_window = Toplevel(self.root)
+#     PaintApp(new_window)

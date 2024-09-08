@@ -1,13 +1,14 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog
-from PIL import Image, ImageTk, ImageDraw
+from tkinter import filedialog, colorchooser
+from PIL import Image, ImageDraw, ImageGrab, ImageTk
 
 
 class PaintApp:
-    def __init__(self, root):
+    def __init__(self, root, parent_app=None):
         self.root = root
         self.root.title("Paint Application")
         self.root.resizable(False, False)
+        self.parent_app = parent_app  # Ventana principal
 
         self.color = 'black'
         self.brush_size = 1
@@ -57,6 +58,10 @@ class PaintApp:
         shape_menu.menu.add_command(label="Select", command=lambda: self.set_draw_tool('select'))
 
         shape_menu.pack(side=tk.LEFT, padx=2, pady=2)
+
+        # Botón para guardar y cerrar
+        save_close_btn = tk.Button(toolbar, text="Guardar y Cerrar", command=self.save_and_close)
+        save_close_btn.pack(side=tk.LEFT, padx=2, pady=2)
 
     def bind_events(self):
         self.canvas.bind("<Button-1>", self.on_button_press)
@@ -174,7 +179,30 @@ class PaintApp:
                 self.canvas.itemconfig(self.selected_shape, outline="red")
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PaintApp(root)
-    root.mainloop()
+    def save_and_close(self):
+        # Crear una nueva imagen en memoria con el tamaño del lienzo
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        
+        # Crear una imagen en blanco con transparencia
+        image = Image.new("RGBA", (canvas_width, canvas_height), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(image)
+
+        # Recorrer las formas dibujadas y volcarlas a la imagen
+        for shape in self.shapes:
+            coords = self.canvas.coords(shape)
+            shape_type = self.canvas.type(shape)
+            
+            if shape_type == 'rectangle':
+                draw.rectangle(coords, outline=self.color)
+            elif shape_type == 'oval':
+                draw.ellipse(coords, outline=self.color)
+            elif shape_type == 'line':
+                draw.line(coords, fill=self.color, width=self.brush_size)
+
+        # Pasar la imagen a la aplicación principal (ImageCanvasApp)
+        if self.parent_app:
+            self.parent_app.set_canvas_image(image)
+
+        # Cerrar la ventana de PaintApp
+        self.root.destroy()

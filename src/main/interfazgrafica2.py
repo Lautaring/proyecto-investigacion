@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, Toplevel
+from tkinter import filedialog, colorchooser, messagebox, Toplevel
 from PIL import Image, ImageTk
 from shapely.geometry import box, Polygon
 # Importar la clase PaintApp de la segunda ventana
@@ -7,6 +7,11 @@ from logic.Ventana_Dibujo import PaintApp  # Asegúrate de que este archivo est�
 
 
 # Clase para manejar la aplicación
+
+def rgb_a_hex(color_rgb):
+    return "#{:02x}{:02x}{:02x}".format(*color_rgb)
+
+
 class ImageCanvasApp:
     def __init__(self, root):
         self.root = root
@@ -32,20 +37,192 @@ class ImageCanvasApp:
 
         # Cargar imagen desde el sistema de archivos
         load_button = tk.Button(self.form_frame, text="Cargar Imagen", command=self.load_image)
-        load_button.grid(row=12, columnspan=2)
+        load_button.grid(row=12, columnspan=2, pady=10)  # Cambiamos a grid
 
         # Nuevo botón para abrir la segunda ventana
         open_paint_button = tk.Button(self.form_frame, text="Abrir Paint App", command=self.open_paint_window)
-        open_paint_button.grid(row=13, columnspan=2)
+        open_paint_button.grid(row=13, columnspan=2, pady=10)  # Cambiamos a grid
 
         # Variables para arrastrar
         self.drag_data = {"x": 0, "y": 0, "item": None}
+
+        # Crear un marco para los botones adicionales
+        self.marco_botones = tk.Frame(self.main_frame)
+        self.marco_botones.pack(side=tk.BOTTOM, pady=10)  # Manteniendo pack aquí ya que es un contenedor separado
 
         # Conectar eventos del ratón para el arrastre
         self.canvas.bind("<ButtonPress-1>", self.on_press)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
         self.canvas.bind("<B1-Motion>", self.on_drag)
 
+        # Botón confirmar
+        boton_confirmar = tk.Button(self.marco_botones, text="Confirmar Dibujo", command=self.confirmar_dibujo)
+        boton_confirmar.pack(padx=10, pady=10)
+
+        self.boton_agregar_factores = tk.Button(self.marco_botones, text="Agregar Factores", command=self.mostrar_factores)
+        self.boton_agregar_factores.pack(padx=10, pady=10, fill="x")
+
+        self.propiedades_colores = {
+            "cloaca": {"valor": 3, "uso_suelo": 1, "extra": {"color": "#6b7e67"}},  # Ejemplo de color en formato RGB hexadecimal
+            "red": {"valor": 5, "uso_suelo": 6, "extra": {"color": "#ff0000"}},     # Rojo
+            "green": {"valor": 2, "uso_suelo": 4, "extra": {"color": "#00ff00"}},   # Verde
+            "yellow": {"valor": 4, "uso_suelo": 3, "extra": {"color": "#ffff00"}},  # Amarillo
+            "blue": {"valor": 6, "uso_suelo": 2, "extra": {"color": "#0000ff"}},    # Azul
+        }
+
+        # este boton debe salir en la pantalla Abrir paint app, en vez de color debe salir este boton que solo deja dibujar con los factores que ya se crearon
+        self.lista_colores = tk.StringVar(value="Seleccionar Color")
+        self.boton_selector_color = tk.OptionMenu(self.marco_botones, self.lista_colores, *self.propiedades_colores.keys(), command=self.seleccionar_color)
+        self.boton_selector_color.pack(padx=10, pady=10, fill="x")
+
+        # Crear el menú
+        self.crear_menu()
+
+    def seleccionar_color(self, color):
+        self.color_trazo = color
+        print(f"Color seleccionado: {color}")
+
+    def mostrar_factores(self):
+        ventana_factores = tk.Toplevel(self.root)
+        ventana_factores.title("Factores")
+        ventana_factores.geometry("400x300")
+        ventana_factores.resizable(False, False)
+        
+        # Mostrar la lista de factores existentes
+        lista_factores = tk.Listbox(ventana_factores)
+        lista_factores.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        for factor in self.propiedades_colores.keys():
+            lista_factores.insert(tk.END, factor)
+        
+        # Botón para agregar un nuevo factor
+        boton_agregar = tk.Button(ventana_factores, text="Agregar Factor", command=lambda: self.agregar_nuevo_factor(ventana_factores))
+        boton_agregar.pack(pady=10)
+
+    def crear_menu(self):
+        menu = tk.Menu(self.root)
+        self.root.config(menu=menu)
+
+        archivo_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Archivo", menu=archivo_menu)
+        archivo_menu.add_command(label="Cargar Mundo", command=self.cargar_mundo)
+        archivo_menu.add_command(label="Guardar Mundo", command=self.guardar_mundo)
+        archivo_menu.add_separator()
+        archivo_menu.add_command(label="Salir", command=self.root.quit)
+
+        ajustar_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Ajustar", menu=ajustar_menu)
+
+    def confirmar_dibujo(self):
+        self.dinamico = True
+        print("Dibujo confirmado. Ahora puedes interactuar con las celdas.")
+
+    def guardar_mundo(self):
+        archivo = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Files", "*.png")])
+        if archivo:
+            imagen = Image.new("RGB", (self.columnas * self.tamaño_celda, self.filas * self.tamaño_celda), "white")
+            draw = ImageDraw.Draw(imagen)
+
+            items = self.canvas.find_all()
+            for item in items:
+                coords = self.canvas.coords(item)
+                color = self.canvas.itemcget(item, 'fill')
+                if color:
+                    x1, y1, x2, y2 = coords
+                    draw.rectangle([x1, y1, x2, y2], fill=color, outline=color)
+            
+            imagen.save(archivo)
+
+    def seleccionar_color_nuevo(self, entrada_nombre):
+        color = colorchooser.askcolor()[1]
+        if color:
+            self.color_seleccionado = color
+            entrada_nombre.config(bg=color)
+
+    def agregar_nuevo_factor(self, ventana_factores):
+        ventana_nuevo_factor = tk.Toplevel(self.root)
+        ventana_nuevo_factor.title("Agregar Nuevo Factor")
+        ventana_nuevo_factor.geometry("400x300")
+        ventana_nuevo_factor.resizable(False, False)
+        
+        # Campo para el nombre del nuevo factor
+        frame_nombre = tk.Frame(ventana_nuevo_factor)
+        frame_nombre.pack(fill="x", pady=5)
+        tk.Label(frame_nombre, text="Nombre del Factor:", width=20, anchor="w").pack(side="left")
+        entrada_nombre = tk.Entry(frame_nombre)
+        entrada_nombre.pack(fill="x", expand=True)
+        
+        # Selector de color
+        frame_color = tk.Frame(ventana_nuevo_factor)
+        frame_color.pack(fill="x", pady=5)
+        tk.Label(frame_color, text="Color:", width=20, anchor="w").pack(side="left")
+        selector_color = tk.Button(frame_color, text="Seleccionar Color", command=lambda: self.seleccionar_color_nuevo(entrada_nombre))
+        selector_color.pack(side="left")
+        
+        # Campos para propiedades
+        frame_propiedad = tk.Frame(ventana_nuevo_factor)
+        frame_propiedad.pack(fill="x", pady=5)
+        tk.Label(frame_propiedad, text="Propiedad:", width=20, anchor="w").pack(side="left")
+        entrada_propiedad = tk.Entry(frame_propiedad)
+        entrada_propiedad.pack(fill="x", expand=True)
+        
+        frame_valor = tk.Frame(ventana_nuevo_factor)
+        frame_valor.pack(fill="x", pady=5)
+        tk.Label(frame_valor, text="Valor:", width=20, anchor="w").pack(side="left")
+        entrada_valor = tk.Entry(frame_valor)
+        entrada_valor.pack(fill="x", expand=True)
+        
+        # Botón para guardar el nuevo factor
+        boton_guardar = tk.Button(ventana_nuevo_factor, text="Guardar Factor", command=lambda: self.guardar_nuevo_factor(entrada_nombre.get(), self.color_seleccionado, entrada_propiedad.get(), entrada_valor.get(), ventana_nuevo_factor))
+        boton_guardar.pack(pady=10)
+
+    def guardar_nuevo_factor(self, nombre, color, propiedad, valor, ventana):
+        if nombre and color:
+            # Verificar si el nuevo nombre de factor ya existe
+            if nombre not in self.propiedades_colores:
+                # Crear una nueva entrada con valores predeterminados
+                self.propiedades_colores[nombre] = {'valor': 0, 'uso_suelo': 0, 'extra': {'color': color}}
+
+                # Agregar propiedades adicionales si se proporcionan
+                if propiedad and valor:
+                    self.propiedades_colores[nombre]['extra'][propiedad] = valor
+
+                # Actualizar la lista desplegable
+                self.boton_selector_color['menu'].add_command(label=nombre, command=tk._setit(self.lista_colores, nombre))
+
+                messagebox.showinfo("Factor Agregado", f"Factor '{nombre}' con color '{color}' agregado.")
+                ventana.destroy()
+                self.mostrar_factores()  # Mostrar la lista actualizada de factores
+            else:
+                messagebox.showwarning("Factor Existente", "El nombre del factor ya existe.")
+        else:
+            messagebox.showwarning("Entrada Inválida", "Por favor, completa todos los campos necesarios.")
+
+    def cargar_mundo(self):
+        archivo_cargar = filedialog.askopenfilename(filetypes=[("Archivos PNG", "*.png")])
+        if archivo_cargar:
+            imagen = Image.open(archivo_cargar)
+
+            # Verificar el tamaño de la imagen cargada
+            if imagen.size != (self.columnas * self.tamaño_celda, self.filas * self.tamaño_celda):
+                messagebox.showerror("Error", "La imagen no coincide con el tamaño del mundo.")
+                return
+            imagen = imagen.convert("RGB")
+
+            self.canvas.delete("all")
+            self.trazos = []
+
+            for y in range(0, imagen.height, self.tamaño_celda):
+                for x in range(0, imagen.width, self.tamaño_celda):
+                    caja = (x, y, x + self.tamaño_celda, y + self.tamaño_celda)
+                    color = imagen.crop(caja).getpixel((0, 0))
+                    color_hex = rgb_a_hex(color) 
+                    if color:
+                        self.canvas.create_rectangle(
+                            x, y, x + self.tamaño_celda, y + self.tamaño_celda,
+                            fill=color_hex, outline=color_hex
+                        )
+                        self.propiedades_celdas[(x // self.tamaño_celda, y // self.tamaño_celda)] = {'valor': 0, 'uso_suelo': 0}
 
     def crear_formulario(self):
         # Menú desplegable para el tipo de factor
